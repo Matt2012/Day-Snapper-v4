@@ -1,0 +1,38 @@
+Logfile initialized
+[INFO] logfile = T:\Daysnapper4\build.log
+[DEBUG] C:\Users\Matt\AppData\Roaming\Titanium\mobilesdk\win32\2.0.1.GA2\android\builder.py simulator Day Snapper D:\Program Files\Android\android-sdk T:\Daysnapper4 coop.tiny.daysnapper 20 HVGA
+[INFO] Building Day Snapper for Android ... one moment
+[INFO] Titanium SDK version: 2.0.1 (04/12/12 16:33 999c68a)
+[DEBUG] Waiting for device to be ready ...
+[TRACE] adb devices returned 1 devices/emulators
+[DEBUG] Device connected... (waited 0 seconds)
+[DEBUG] waited 0.041000 seconds on emulator to get ready
+[DEBUG] coop.tiny.daysnapper installed? True
+[INFO] Fastdev server running, deploying in Fastdev mode
+[INFO] Copying CommonJS modules...
+[INFO] Copying project resources..
+[TRACE] COPYING MODIFIED FILE: T:\Daysnapper4\Resources\app.js => T:\Daysnapper4\build\android\bin\assets\Resources\app.js
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\appIcon.png => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\appIcon.png
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\appIcon@2x.png => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\appIcon@2x.png
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\back.png => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\back.png
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\back@2x.png => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\back@2x.png
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\holo-back.png => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\holo-back.png
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\holo-back@2x.png => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\holo-back@2x.png
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\images\glyph\grey\Thumbs.db => T:\Daysnapper4\build\android\bin\assets\Resources\images\glyph\grey\Thumbs.db
+[TRACE] COPYING MODIFIED FILE: T:\Daysnapper4\Resources\images\Thumbs.db => T:\Daysnapper4\build\android\bin\assets\Resources\images\Thumbs.db
+[TRACE] COPYING MODIFIED FILE: T:\Daysnapper4\Resources\ui\common\ApplicationWindow.js => T:\Daysnapper4\build\android\bin\assets\Resources\ui\common\ApplicationWindow.js
+[TRACE] COPYING MODIFIED FILE: T:\Daysnapper4\Resources\ui\common\settings\btnSettingsWindow.js => T:\Daysnapper4\build\android\bin\assets\Resources\ui\common\settings\btnSettingsWindow.js
+[TRACE] COPYING MODIFIED FILE: T:\Daysnapper4\Resources\ui\common\shared\ActionBarView.js => T:\Daysnapper4\build\android\bin\assets\Resources\ui\common\shared\ActionBarView.js
+[TRACE] COPYING CREATED FILE: T:\Daysnapper4\Resources\ui\common\snapsView\DetailWindow.js => T:\Daysnapper4\build\android\bin\assets\Resources\ui\common\snapsView\DetailWindow.js
+[INFO] Tiapp.xml unchanged, skipping class generation
+[DEBUG] Processing Android resource drawables
+[DEBUG] found drawable-long-port-hdpi splash screen at T:\Daysnapper4\Resources\android\images\res-long-port-hdpi\default.png
+[DEBUG] found drawable-long-port-ldpi splash screen at T:\Daysnapper4\Resources\android\images\res-long-port-ldpi\default.png
+[DEBUG] found drawable-notlong-port-hdpi splash screen at T:\Daysnapper4\Resources\android\images\res-notlong-port-hdpi\default.png
+[DEBUG] found drawable-notlong-port-ldpi splash screen at T:\Daysnapper4\Resources\android\images\res-notlong-port-ldpi\default.png
+[DEBUG] found drawable-notlong-port-mdpi splash screen at T:\Daysnapper4\Resources\android\images\res-notlong-port-mdpi\default.png
+[INFO] Waiting for SDCard to become available..
+[INFO] Re-launching application ... Day Snapper
+[INFO] Launching application ... Day Snapper
+[TRACE] Launch output: Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=coop.tiny.daysnapper/.DaySnapperActivity }
+

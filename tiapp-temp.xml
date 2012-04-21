@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <property name="acs-oauth-secret-production" type="string"></property>
+    <property name="acs-oauth-key-production" type="string"></property>
+    <property name="acs-api-key-production" type="string"></property>
+    <property name="acs-oauth-secret-development" type="string"></property>
+    <property name="acs-oauth-key-development" type="string"></property>
+    <property name="acs-api-key-development" type="string"></property>
+    <deployment-targets>
+        <target device="mobileweb">false</target>
+        <target device="iphone">true</target>
+        <target device="ipad">true</target>
+        <target device="android">true</target>
+        <target device="blackberry">false</target>
+    </deployment-targets>
+    <sdk-version>2.0.1.GA2</sdk-version>
+    <id>com.easy2web2.example</id>
+    <name>Example</name>
+    <version>1.0</version>
+    <publisher>tiny</publisher>
+    <url>http://www.easy2web2.com</url>
+    <description>Private Journal, Social Network</description>
+    <copyright>2012 Tiny</copyright>
+    <icon>appicon.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
+    <statusbar-hidden>false</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>true</navbar-hidden>
+    <analytics>true</analytics>
+    <guid>794b579e-2f63-4694-ab22-6701105e0107</guid>
+    <property name="ti.ui.defaultunit">system</property>
+    <iphone>
+        <orientations device="iphone">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+        </orientations>
+        <orientations device="ipad">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+            <orientation>Ti.UI.UPSIDE_PORTRAIT</orientation>
+        </orientations>
+    </iphone>
+    <android xmlns:android="http://schemas.android.com/apk/res/android"/>
+    <modules>
+		<module platform="iphone" version="1.1">com.0x82.testflight</module>
+        <module platform="commonjs" version="2.0.1">ti.cloud</module>
+        <module platform="android" version="2.0.1">ti.cloudpush</module>
+    </modules>
+</ti:app>
