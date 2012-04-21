@@ -28,6 +28,7 @@ function AuthenticationView() {
     self.add(scrollView);
 	
 	loginV.addEventListener('loggedIn', function(user) {
+		Ti.API.info("received ---- at loggedIn ");
 		self.fireEvent('authenticated',user)
 		return false;
 	});

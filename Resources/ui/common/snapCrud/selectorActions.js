@@ -82,7 +82,7 @@ function openSnapWindow(btnAction, self)
 {
 	var url = '/ui/common/snapCrud/'+btnAction+'Snap';
 	var masterModal = require(url);
-	var w = masterModal();
+	var w = new masterModal();
 		
 	w.addEventListener('saveSnapAndRefresh_step1', function(newSnap) {
 		self.fireEvent('saveSnapAndRefresh_step2',newSnap);

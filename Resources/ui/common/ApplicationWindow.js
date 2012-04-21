@@ -7,6 +7,7 @@ function AuthenticationSliderView(self)
 	var authenticationView = new AuthenticationView();
 	
 	authenticationView.addEventListener('authenticated', function(user) {
+		alert('a');
 		self.remove(authenticationView);
 		var mainV = MasterDetailView(self);
 		self.add(mainV);
@@ -129,7 +130,7 @@ function ApplicationWindow() {
 	var isLoggedIn = Titanium.App.Properties.getString('loggedIn',false);
 	Ti.API.info('------------------------is logged in ? ' + isLoggedIn);
 	
-	if(isLoggedIn=='false')
+	if(isLoggedIn=='false' || isLoggedIn==false )
 	{
 		//No UserID stored so show login screen (with register and forgot password options)
 		Ti.API.info('------------------------Loading Authentication View');

@@ -115,7 +115,7 @@ function LoginView() {
 				var user = e.users[0];
 				Ti.API.info( "Logged In as: " + user.username ); // show the logged in user
 				Ti.API.info("User ---- "+JSON.stringify(user));
-				Ti.App.Properties.setProperty('Name',e.users.first_name);
+				Ti.App.Properties.setProperty('firstName',user.first_name);
 				Titanium.App.Properties.setList(user.id,user);
 				Titanium.App.Properties.setString('userName',user.username);
 				Titanium.App.Properties.setString('userID',user.id);
