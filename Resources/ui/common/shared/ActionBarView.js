@@ -132,7 +132,11 @@ function ActionBarView(args) {
 		var btnLabel, btnImage, button = new ui.View({
 			width:buttonData.width,
 			right:buttonOffset,
+			id:buttonId
 		});
+		
+		//alert(buttonId);
+		Ti.API.info(buttonId);
 		
 		if (buttonData.title) {
 			btnLabel = new ui.Label(buttonData.title, {
@@ -140,6 +144,7 @@ function ActionBarView(args) {
 				height:'auto',
 				width:'auto',
 				left:30,
+				
 				font: {
 					fontSize:14,
 					fontWeight:'bold'

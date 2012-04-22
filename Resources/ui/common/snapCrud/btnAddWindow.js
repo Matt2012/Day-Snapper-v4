@@ -19,7 +19,7 @@ function btnAddWindow() {
 	self.add(SSSTableView);
 	
 	self.SnapView.addEventListener('itemSelected', function(e) {
-		doAction('Snap', e.id, self);
+		doAction('Snap', e.id, self, e);
 	});
 	
 	var topBar = new ActionBarView({
@@ -59,7 +59,7 @@ function btnAddWindow() {
 	self.add(bottomBar.viewProxy);
 	
 	bottomBar.addEventListener('buttonPress', function(e) {
-		doAction('Snap',e.id, self);
+		doAction('Snap',e.id, self, e);
 	});
 	
 	self.addEventListener('saveSnapAndRefresh_step2', function(newSnap) {

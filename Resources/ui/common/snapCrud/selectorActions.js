@@ -2,7 +2,7 @@ function doAction(which, btnAction, self, data)
 {
 	if(which=='Snap')
 	{
-		SnapAction(btnAction, self);
+		openSnapWindow(btnAction, self, data);
 	}
 	else if(which=='TagOpts')
 	{
@@ -29,60 +29,11 @@ function Tag(btnAction)
 	alert("Tag Sort: " + btnAction + ", coming soon.");
 }
 
-function SnapAction(btnAction, self)
+
+function openSnapWindow(btnAction, self, data)
 {
-	//alert(btnAction);
-	switch(btnAction)
-	{
-		case'btnNote':
-			openSnapWindow(btnAction, self)
-		break;
-		case'btnCamera':
-			openCamera();
-		break;
-		case'btnGallery':
-			openOther();
-		break;
-		case'btnVideo':
-			openOther();
-		break;
-		case'btnVideo':
-			openOther();
-		break;
-		case'btnBlog':
-			openOther();
-		break;
-		default:
-			openOther();
-		break;
-	}
-}
-
-function openCamera() {
-	
-		alert('open Carmera');
-}
-
-function openGallery() {
-	
-		alert('open Gallery');
-}
-
-function openOther() {
-	
-		alert('This Snap Coming Soon');
-}
-
-function openNote() {
-	
-		alert('This Note Coming Soon');
-}
-
-function openSnapWindow(btnAction, self)
-{
-	var url = '/ui/common/snapCrud/'+btnAction+'Snap';
-	var masterModal = require(url);
-	var w = new masterModal();
+	var masterModal = require('/ui/common/snapCrud/snapForm');
+	var w = new masterModal(btnAction, data);
 		
 	w.addEventListener('saveSnapAndRefresh_step1', function(newSnap) {
 		self.fireEvent('saveSnapAndRefresh_step2',newSnap);
