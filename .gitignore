@@ -1,3 +1,6 @@
 tmp
 tiapp.xml
 build
+.project
+Resources/lib/ti/config.js
+build.log

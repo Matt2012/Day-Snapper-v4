@@ -7,7 +7,6 @@ function AuthenticationSliderView(self)
 	var authenticationView = new AuthenticationView();
 	
 	authenticationView.addEventListener('authenticated', function(user) {
-		alert('a');
 		self.remove(authenticationView);
 		var mainV = MasterDetailView(self);
 		self.add(mainV);
@@ -100,9 +99,11 @@ function MasterDetailView(self)
 	
 	//add behavior for master view
 	masterView.SnapView.addEventListener('itemSelected', function(e) {
-		detailView.fireEvent('itemSelected',e);
 		detailView.data = e;
+		Ti.API.info('looking for post_id '+JSON.stringify(e));
 		detailContainerWindow.open();
+		detailView.fireEvent('prepareView',e);
+		return false;
 	});
 	
 	masterView.addEventListener('unauthenticated', function(user) {

@@ -1,74 +1,85 @@
-//parseapi = require('com.forge42.parseapi');
 Ti.include('/lib/ti/global.js');	
 
-exports.insertSnap = function(args) {
+exports.insertSnap = function(args, self, taffyID) {
 	
-	Ti.API.info("-----------------------------------------------------starting insert or update");
+	var isCool = doNetworksSyncSettingsCheck();
 	
-	//check network
-	//check wifi
-	//check settings for when to sync
-	
-	//if has objectId use update;
-	if( args.objectId == false  )
+	if(isCool.success)
 	{
-		Ti.API.info('has an objectId of false so insert---'+args.objectId);
-		//var pfObject = parseapi.PFObjectCreateObjectWithClassName("SnapObject");
-		var pfObject =''; //todo
+		Ti.API.info("-----------------------------------------------------starting insert or update");
+		
+		var post = {}
+		var x = {};
+		//if update these might be passed
+		if (args.title) post['title'] = args.title;
+		if (args.content) post['content'] = args.content;
+		if (args.category) x['category'] = args.category;
+		if (args.category) x['tags_array'] = args.tags_array;
+		if (args.dateFor) x['dateFor'] = new Date(args.dateFor);
+		if (args.isPrivate) x['privacy'] = args.privacy;
+		if (args.status) x['status'] = args.status;
+		if (args.coordinates) x['coordinates'] = args.coordinates;
+		
+		x['dateUpdated'] = new Date(args.dateUpdated);
+	
+		//if has post_id use update;
+		if( args.post_id !== 'undefined' || args.post_id !== false )
+		{
+			Ti.API.info('------------------starting insert (has an post_id of undefined) '+args.post_id);
+	
+			x['dateCreated'] = new Date(args.dateCreated);
+	
+			post['custom_fields'] = x;
+
+			Cloud.Posts.create(post, function (e) {
+					if (e.success) {
+						alert('Created!');
+						Ti.API.info(JSON.stringify(e));
+						args.post_id = e.posts[0].id;
+						args.lastSynced = x['dateCreated'];
+						args.isSynced = true;
+						self.fireEvent('saveSnapAndRefresh_step5',args, taffyID);
+						return false;
+					}
+					else {
+						Ti.API.info(JSON.stringify(e));
+						Ti.API.info("Problem. ErrorCode: " + e.code + " Error: " + e.message);
+						return false;
+					}
+				});
+		}
+		else
+		{
+			Ti.API.info('------------------starting update (has an post_id)'+args.post_id+' '+JSON.stringify(args));
+			
+			post['custom_fields'] = x;
+			
+			Cloud.Posts.update(post, function (e) {
+				if (e.success) {
+					alert('Updated!');
+					Ti.API.info(JSON.stringify(e));
+					args.lastSynced = x['dateCreated'];
+					args.isSynced = true;
+					self.fireEvent('saveSnapAndRefresh_step5',args, taffyID);
+				}
+				else {
+					Ti.API.info(JSON.stringify(e));
+					Ti.API.info("Problem. ErrorCode: " + e.code + " Error: " + e.message);
+				}
+				return;
+			});
+			
+			
+		}
 	}
 	else
 	{
-		Ti.API.info('has an objectId so update---'+args.objectId+'-- '+JSON.stringify(args));
-		//Ti.API.info('update snap type---'+args['updateSnapType']);
-		//return false;
-		var pfObject = updateSnap(args.objectId);
-		if(pfObject==false) return false;
+		Ti.API.info('Skipped Syncing because'+isCool['message']);
 	}
 	
-	// Text, numbers
-	//var x = parseapi.PFUserCurrentUser(); //store this in TaffyDB??
-	if (args.title) pfObject.setObject(args.title, "title");
-	if (args.category) pfObject.setObject(args.category, "category");
-	if (args.dateCreated) pfObject.setObject(new Date(args.dateCreated), "dateCreated");
-	if (args.dateUpdated) pfObject.setObject(new Date(args.dateUpdated), "dateUpdated");
-	if (args.dateFor) pfObject.setObject(new Date(args.dateFor), "dateFor");
-	//if (!args.userID) pfObject.setObject(parseapi.PFUserCurrentUser(), "user");  //todo
-	if (args.isPrivate) pfObject.setObject(args.isPrivate, "isPrivate");
-	if (args.status) pfObject.setObject(args.status, "status");
+}
 
-	// Save
-	var result = pfObject.save(); //TODO change save in background
 	
-	if( result.succeeded ) {
-		Ti.API.info("-----------------------------------------------------Success!");
-		var created_object_id = pfObject.objectId;
-		Ti.API.info("Created Object ID: " + created_object_id);
-	} else {
-		var created_object_id = false;
-		Ti.API.info("Could not save object ErrorCode: " + result.errorCode + " Error: " + result.error);
-	}
-	return created_object_id;
-};
-
-updateSnap = function(created_object_id) {
-	
-	//var pfQuery = parseapi.PFQueryCreateQueryWithClassName("SnapObject");
-	//todo
-	//var result = pfQuery.getObjectWithId(created_object_id);
-	
-	if( result.succeeded ) {
-	
-		var pfObject = result.object; 
-		
-		return pfObject;
-		
-	} else {
-		
-		Ti.API.info("Could not get object to update ErrorCode: " + result.errorCode + " Error: " + result.error);
-		
-		return false;
-	}
-};	
 
 
 exports.doSync = function() {
@@ -94,6 +105,32 @@ exports.doSync = function() {
 					key: "updatedAt",
 					greaterThanOrEqualTo: lastSyncDate	
 				});
+				
+				
+				var query = {user_id: userID};
+				
+				Cloud.Posts.query(query, function (e) {
+				if (e.success) {
+						if (e.posts.length == 0) {
+							alert('Nothing to bring down!');
+						}
+						else {
+							var data = [];
+							for (var i = 0, l = e.posts.length; i < l; i++) {
+								data.push({
+									title: e.posts[i].title,
+									id: e.posts[i].id
+								});
+							}
+							//do taffyintegration
+							//table.setData(data);
+						}
+					}
+					else {
+						error(e);
+					}
+				});
+				
 				
 				// can be equalTo, greaterThan, greaterThanOrEqualTo, lessThan, lessThanOrEqualTo, notEqualTo
 				//grab all data in taffy that is updated > lastSyncDate
@@ -121,39 +158,14 @@ exports.doSync = function() {
 
 			}
 			
-			//same for both
-			pfQuery.whereKey( {
-					key: "user",
-					equalTo: '' //parseapi.PFUserCurrentUser()	//todo
-				});
-				
-			pfQuery.orderByAscending("updatedAt");	
 			
-			var result = pfQuery.findObjects();
 
 	
 	if( result.succeeded ) {
 	
 		Ti.API.info("Successfully queried objects!");
 		
-		var pfObjects = result.objects;
 		
-		Ti.API.info("Query skip " + pfQuery.skip + ", limit " + pfQuery.limit + " and returned " + pfObjects.length + " PFObjects"); 
-		Ti.API.info("Start Query Result -------------------------------- ");
-		
-		for( var i = 0; i < pfObjects.length; i++ )
-		{
-			var pfObject = pfObjects[i];
-			Ti.API.info("  PFObject " + i);
-			Ti.API.info("    objectId: " + pfObject.objectId );
-			Ti.API.info("    updatedAt: " + pfObject.updatedAt );
-			Ti.API.info("    createdAt: " + pfObject.createdAt );
-			//Ti.API.info("    quantity: " + pfObject.objectForKey("quantity") );
-			//Ti.API.info("    productData: " + JSON.stringify( pfObject.objectForKey("productData") ) )
-			Ti.API.info("  End PFObject");
-			Ti.API.info("");
-		}
-		Ti.API.info("End Query Result -------------------------------- ");
 		
 	} else {
 		
@@ -172,4 +184,14 @@ exports.doSync = function() {
 			
 			//make remote changes
 	
-};
+}
+
+function doNetworksSyncSettingsCheck()
+{
+	//check network
+	//check wifi
+	//check settings for when to sync
+	var isCool = {};
+	isCool.success = true;
+	return isCool;
+}

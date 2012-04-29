@@ -4,6 +4,9 @@
 	theme = require('/lib/ti/theme'),
 	ui = require('/lib/ti/components');
 	
+	Ti.include('/lib/ti/config.js');
+	
+
 	var Cloud = require('ti.cloud');
 	Cloud.debug = true;  // optional; if you add this line, set it to false for production
 
@@ -23,6 +26,20 @@
 	version = Ti.Platform.version,
 	height = Ti.Platform.displayCaps.platformHeight,
 	width = Ti.Platform.displayCaps.platformWidth;
+	
+	if(osname === 'android')
+	{
+		//var bugsense = require("com.droisys.bugsense");
+		//bugsense.startTracking(apiKeys.bugsense);
+		//broken
+	}
+	else
+	{
+		var testflight = require("com.0x82.testflight");
+		testflight.takeOff(testflight.takeOff(teamToken))
+	}
+	
+	
 	var isTablet = osname === 'ipad' || (osname === 'android' && (width > 899 || height > 899));
 	
 	function iconPath(icon,pos) 

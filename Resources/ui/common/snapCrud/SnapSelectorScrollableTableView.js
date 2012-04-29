@@ -33,6 +33,7 @@ function SnapSelectorScrollableTableView() {
 		{"title":"Private Journal Snap", "id":"btnJournal", "rightImage":journalIcon},
 		{"title":"Make a DooBee Snap", "id":"btnDooBee", "rightImage":doobeeIcon},
 		{"title":"Post discussion to TribeTree", "id":"btnAlarm", "rightImage":noteIcon},
+		{"title":"Add to PicWiki.org: Social wikipedia of images", "id":"btnAlarm", "rightImage":noteIcon},
 		{"title":"Quick Location Snap", "id":"btnLocation", "rightImage":locationIcon},
 		{"title":"Quick Reminder Snap", "id":"btnAlarm", "rightImage":alarmIcon},
 		{"title":"Post Status Update and Share (Facebook)", "id":"btnTextShare", "rightImage":photoIcon},

@@ -1,6 +1,8 @@
 function ActionBarView(args) {
 	
 	Ti.include('/lib/ti/global.js');
+	
+	var buttonRefs = {};
 
 	if(typeof args.pos !== 'undefined' && args.pos === 'top')
 	{
@@ -12,10 +14,6 @@ function ActionBarView(args) {
 			backgroundColor:'#F1F1F1',
 			top:0
 		}));
-		
-		
-
-
 		
 //		var backbutton = Titanium.UI.createButton({ backgroundImage:'images/.png', width:48, height:27 }); 
 //		
@@ -126,7 +124,9 @@ function ActionBarView(args) {
 	}
 	
 	var buttonOffset = 0;
+	var i = 0;
 	for (var buttonId in args.buttons) {
+		i++;
 		var buttonData = args.buttons[buttonId];
 		
 		var btnLabel, btnImage, button = new ui.View({
@@ -136,15 +136,14 @@ function ActionBarView(args) {
 		});
 		
 		//alert(buttonId);
-		Ti.API.info(buttonId);
-		
+		//Ti.API.info(buttonId);
 		if (buttonData.title) {
 			btnLabel = new ui.Label(buttonData.title, {
 				color:labelColour,
 				height:'auto',
 				width:'auto',
 				left:30,
-				
+				id:buttonId||buttonData.title,
 				font: {
 					fontSize:14,
 					fontWeight:'bold'
@@ -160,7 +159,7 @@ function ActionBarView(args) {
 
 			if(buttonData.icon=='sync')
 			{
-				var a = Titanium.UI.createAnimation();
+				var a = Ti.UI.createAnimation();
 				var t = Ti.UI.create2DMatrix();
 	
 				btnImage.addEventListener('click', function(e) {
@@ -184,11 +183,13 @@ function ActionBarView(args) {
 			}
 
 			button.add(btnImage);
+			
 		}
-		
+
 		self.add(button);
+		buttonRefs[buttonId] = button;
 		
-		if(args.pos=='top')
+		if(args.pos=='top' && buttonData.title)
 		{
 			self.add(new ui.View({
 				backgroundColor:'#dedede',
@@ -209,6 +210,7 @@ function ActionBarView(args) {
 		buttonOffset = buttonOffset+buttonData.width;
 	}
 	
+	self.buttonRefs = buttonRefs;
 	return self;
 }
 

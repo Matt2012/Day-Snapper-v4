@@ -49,7 +49,7 @@ function ModifySnap(btnAction, self, data)
 	switch(btnAction)
 	{
 		case'btnEdit':
-			alert('Editing coming soon.');
+			alert('send to correct form with data');
 		break;
 		case'btnArchive':
 			modifyRecord('Archive', self, data);
@@ -58,7 +58,7 @@ function ModifySnap(btnAction, self, data)
 			modifyRecord('Delete', self, data);
 		break;
 		case'btnTag':
-		    //alert('Going to modify record ' + data['___id'] + ' - ' + btnAction);
+		    //show view with note 
 			alert('Tagging coming soon.');
 		break;
 	}
@@ -91,8 +91,9 @@ function modifyRecord(which, self, data)
 		  //var data = {};
 		  var ndata = {};
 		  ndata['id'] = data['___id'];
-		  ndata['updatedSnap'] = {status:w,objectId:data['objectId']};
+		  ndata['updatedSnap'] = {status:w,post_id:data['post_id']};
 		 // ndata['updateSnapType'] = 'status';
+		 Ti.API.info(JSON.stringify(ndata));
 		  self.fireEvent('modifySnapAndRefresh_step1',ndata);
 	   }
 	});
