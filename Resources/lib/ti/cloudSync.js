@@ -1,6 +1,6 @@
 Ti.include('/lib/ti/global.js');	
 
-exports.insertSnap = function(args, self, taffyID) {
+exports.insertSnap = function(args, self, taffyID, tableRow) {
 	
 	var isCool = doNetworksSyncSettingsCheck();
 	
@@ -38,7 +38,7 @@ exports.insertSnap = function(args, self, taffyID) {
 						args.post_id = e.posts[0].id;
 						args.lastSynced = x['dateCreated'];
 						args.isSynced = true;
-						self.fireEvent('saveSnapAndRefresh_step5',args, taffyID);
+						self.fireEvent('saveSnapAndRefresh_step5',args, taffyID, tableRow);
 						return false;
 					}
 					else {
@@ -60,7 +60,7 @@ exports.insertSnap = function(args, self, taffyID) {
 					Ti.API.info(JSON.stringify(e));
 					args.lastSynced = x['dateCreated'];
 					args.isSynced = true;
-					self.fireEvent('saveSnapAndRefresh_step5',args, taffyID);
+					self.fireEvent('saveSnapAndRefresh_step5',args, taffyID, tableRow);
 				}
 				else {
 					Ti.API.info(JSON.stringify(e));

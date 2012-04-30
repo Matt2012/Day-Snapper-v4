@@ -4,6 +4,7 @@
 #
 version: 0.1
 description: Bugsense Module for Bugtracking
+apiversion: 2
 author: Droisys Inc
 license: AGPLv3
 copyright: Copyright (c) 2011 by Droisys Inc

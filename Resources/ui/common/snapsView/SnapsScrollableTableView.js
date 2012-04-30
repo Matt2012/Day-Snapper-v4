@@ -19,7 +19,7 @@ function SnapView() {
 	
 	
 	
-	mySnapsDB().remove();
+	//mySnapsDB().remove();
 	
 	var c = mySnapsDB().count();
 	
@@ -63,6 +63,8 @@ function SnapView() {
 	//add behavior
 	snapTable.addEventListener('click', function(e) {
 		//alert(e.rowData.title);
+		//Ti.API.info('Table row is----'+JSON.stringify(e));
+		e.rowData.tableRow = e.index;
 		Ti.API.info('adding this on click ----------------- '+JSON.stringify(e.rowData));
 		self.fireEvent('itemSelected', {snap:e.rowData});
 		return false;
@@ -85,13 +87,17 @@ function SnapView() {
 		//run sync routine - insert row
 		var taffyID = newRow[0]["___id"];
 		Ti.API.info('------------reached taffyID ' + taffyID);
-		cloudSync.insertSnap(newSnap, self, taffyID);
+		cloudSync.insertSnap(newSnap, self, taffyID, 0); //new so row is 0
 		return false;
 	});
 	
-	self.addEventListener('saveSnapAndRefresh_step5', function(newSnap, taffyID) {
+	self.addEventListener('saveSnapAndRefresh_step5', function(newSnap, taffyID, tableRow) {
+		//used as the callback when data is saved in the cloud and a cloudID generated
+		var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
 		var z = mySnapsDB(taffyID).update(newSnap).get();
-		snapTable.updateRow(0,newSnap);
+		//its always the first row if new, but if this callback used for an edit need row id
+		alert(tableRow);
+		snapTable.updateRow(tableRow,newSnap);
 		return false;
 	});
 	
@@ -111,7 +117,7 @@ function SnapView() {
 		Ti.API.info('-------whats to be updated '+JSON.stringify(updatedSnap));
 		Ti.API.info(JSON.stringify(e));
 		taffyID = e.id;
-		cloudSync.insertSnap(updatedSnap, self, taffyID); //even though updated could be first time synced
+		cloudSync.insertSnap(updatedSnap, self, taffyID, e.tableRow); //even though updated could be first time synced
 		return false;
 	});
 	
@@ -121,7 +127,7 @@ function SnapView() {
 		var refreshTable = cloudSync.doSync();	
 		if(refreshTable)
 		{
-			//var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
+			var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
 			var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
 			snapTable.data = y;
 		}

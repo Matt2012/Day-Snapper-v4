@@ -8,6 +8,8 @@ function MasterView() {
 		backgroundColor:'white'
 	});
 	
+	
+	//REFACTOR change this to reference snapstableview update everywhere
 	var SnapView = require('/ui/common/snapsView/SnapsScrollableTableView');
 	
 	var snapsTable = new SnapView();

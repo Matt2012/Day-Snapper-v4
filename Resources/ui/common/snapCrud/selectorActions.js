@@ -92,6 +92,7 @@ function modifyRecord(which, self, data)
 		  var ndata = {};
 		  ndata['id'] = data['___id'];
 		  ndata['updatedSnap'] = {status:w,post_id:data['post_id']};
+		  ndata['row'] = data['tableRow'];
 		 // ndata['updateSnapType'] = 'status';
 		 Ti.API.info(JSON.stringify(ndata));
 		  self.fireEvent('modifySnapAndRefresh_step1',ndata);
