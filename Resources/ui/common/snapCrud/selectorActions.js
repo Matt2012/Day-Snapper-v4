@@ -36,7 +36,8 @@ function openSnapWindow(btnAction, self, data)
 	var w = new masterModal(btnAction, data);
 		
 	w.addEventListener('saveSnapAndRefresh_step1', function(newSnap) {
-		self.fireEvent('saveSnapAndRefresh_step2',newSnap);
+		Ti.API.info('------------off to save new snap stage 2---------------');
+		self.fireEvent('saveSnapAndRefresh_step2',newSnap); // btnAddWindow.js passes it back to 
 		self.close();
 	});
 	

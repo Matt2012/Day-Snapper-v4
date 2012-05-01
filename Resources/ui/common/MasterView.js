@@ -91,7 +91,8 @@ function MasterView() {
 			var masterModal = require(url);
 			var w = masterModal();
 			w.addEventListener('saveSnapAndRefresh_step3', function(newSnap) {
-				snapsTable.fireEvent('saveSnapAndRefresh_step4',newSnap);
+				Ti.API.info('------------off to save new snap stage 4---------------');
+				snapsTable.fireEvent('saveSnapAndRefresh_step4',newSnap); // SnapScrollableTableView.js still just passing newsnap
 			});
 			w.open();
 		}

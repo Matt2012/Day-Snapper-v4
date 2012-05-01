@@ -29,8 +29,9 @@
 	
 	if(osname === 'android')
 	{
-		//var bugsense = require("com.droisys.bugsense");
-		//bugsense.startTracking(apiKeys.bugsense);
+		var bugsense = require("com.droisys.bugsense");
+		bugsense.setup(apiKeys.bugsense);
+		Ti.API.info("module is => " + bugsense);
 		//broken
 	}
 	else

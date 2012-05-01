@@ -63,7 +63,8 @@ function btnAddWindow() {
 	});
 	
 	self.addEventListener('saveSnapAndRefresh_step2', function(newSnap) {
-		self.fireEvent('saveSnapAndRefresh_step3',newSnap);
+		Ti.API.info('------------off to save new snap stage 3---------------');
+		self.fireEvent('saveSnapAndRefresh_step3',newSnap); //MasterView.js  just passing newsnap
 		//return false;
 	});
 

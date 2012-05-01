@@ -211,8 +211,9 @@ function snapForm(btnAction, data) {
 		else
 		{
 			var icon = iconPath(topIcon,'bottom'); //if note set at top
+			//Refactor Move title to function
 			var title = f['postTitle'].value;
-			Ti.API.info('------------reached here 1 '+title);
+			//Ti.API.info('------------reached here 1 '+title);
 			if(title!='')
 			{
 				var titleSnap = title;
@@ -220,10 +221,10 @@ function snapForm(btnAction, data) {
 			else
 			{
 				var lines = textSnap.split('\n'); //get first line
-				Ti.API.info('------------reached here 2 '+lines[0]);
-				Ti.API.info(JSON.stringify(lines));
+				//Ti.API.info('------------reached here 2 '+lines[0]);
+				//Ti.API.info(JSON.stringify(lines));
 				var textSnapA = lines[0].split('.'); //get first sentence
-				Ti.API.info('------------reached here 3 '+textSnapA[0]);
+				//Ti.API.info('------------reached here 3 '+textSnapA[0]);
 				var titleSnap = textSnapA[0].substr(0,20);
 			}
 			
@@ -232,7 +233,8 @@ function snapForm(btnAction, data) {
 
 			var newSnap = {'title':titleSnap,'content':textSnap,'category':topIcon,'rightImage':icon,
 							'tags_array':f['tags'].value,'coordinates':coordinates,'dateFor':f['dateforval'].value};
-			win.fireEvent('saveSnapAndRefresh_step1', newSnap);
+			Ti.API.info('------------off to save new snap stage 1---------------');
+			win.fireEvent('saveSnapAndRefresh_step1', newSnap); //selectiorActions.js (just passes it back to 
 			win.close();
 		}
 	});

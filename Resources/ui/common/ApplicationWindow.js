@@ -101,6 +101,7 @@ function MasterDetailView(self)
 	masterView.SnapView.addEventListener('itemSelected', function(e) {
 		detailView.data = e;
 		Ti.API.info('looking for post_id '+JSON.stringify(e));
+		detailContainerWindow.close();
 		detailContainerWindow.open();
 		detailView.fireEvent('prepareView',e);
 		return false;

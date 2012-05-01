@@ -86,18 +86,24 @@ function SnapView() {
 		snapTable.data = y;
 		//run sync routine - insert row
 		var taffyID = newRow[0]["___id"];
+		Ti.API.info('------------we are at new snap stage 4: now to save to cloud---------------');
 		Ti.API.info('------------reached taffyID ' + taffyID);
 		cloudSync.insertSnap(newSnap, self, taffyID, 0); //new so row is 0
 		return false;
 	});
 	
-	self.addEventListener('saveSnapAndRefresh_step5', function(newSnap, taffyID, tableRow) {
+	self.addEventListener('saveSnapAndRefresh_step5', function(newSnap) {
 		//used as the callback when data is saved in the cloud and a cloudID generated
 		var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
-		var z = mySnapsDB(taffyID).update(newSnap).get();
+		Ti.API.info('------------whats TaffyID '+ newSnap.keys.taffyID);
+		Ti.API.info('whats post_id '+JSON.stringify(newSnap));
+		Ti.API.info('------------whats Table Row '+ newSnap.keys.tableRow);
+		var k = newSnap.keys;
+		delete newSnap.keys;
+		var z = mySnapsDB(k.taffyID).update(newSnap).get();
 		//its always the first row if new, but if this callback used for an edit need row id
-		alert(tableRow);
-		snapTable.updateRow(tableRow,newSnap);
+		//alert(tableRow);
+		snapTable.updateRow(k.tableRow,newSnap);
 		return false;
 	});
 	

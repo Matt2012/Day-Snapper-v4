@@ -23,13 +23,16 @@ exports.insertSnap = function(args, self, taffyID, tableRow) {
 		x['dateUpdated'] = new Date(args.dateUpdated);
 	
 		//if has post_id use update;
-		if( args.post_id !== 'undefined' || args.post_id !== false )
+		if( args.post_id !== 'undefined' || args.post_id === false || args.post_id =='' )
 		{
-			Ti.API.info('------------------starting insert (has an post_id of undefined) '+args.post_id);
+			Ti.API.info('------------------starting insert (has an post_id of undefined or false ) '+args.post_id);
 	
 			x['dateCreated'] = new Date(args.dateCreated);
 	
 			post['custom_fields'] = x;
+			
+			Ti.API.info('------------whats TaffyID cs '+ taffyID);
+			Ti.API.info('------------whats Table Row cs '+ tableRow);
 
 			Cloud.Posts.create(post, function (e) {
 					if (e.success) {
@@ -38,7 +41,8 @@ exports.insertSnap = function(args, self, taffyID, tableRow) {
 						args.post_id = e.posts[0].id;
 						args.lastSynced = x['dateCreated'];
 						args.isSynced = true;
-						self.fireEvent('saveSnapAndRefresh_step5',args, taffyID, tableRow);
+						args.keys = {'taffyID':taffyID,'tableRow':tableRow};
+						self.fireEvent('saveSnapAndRefresh_step5',args);
 						return false;
 					}
 					else {

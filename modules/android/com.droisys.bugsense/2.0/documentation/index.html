@@ -1,0 +1,57 @@
+<h1>bugsense Module</h1>
+<h2>Description</h2>
+<p>An Module for Bugsense Tracking Tool. Go here to know more http://www.bugsense.com/. Register an API Key to use.</p>
+<h2>Accessing the bugsense Module</h2>
+<p>To access this module from JavaScript, you would do the following:</p>
+<pre><code>var bugsense = require("com.droisys.bugsense");
+</code></pre>
+<p>The bugsense variable is a reference to the Module object.<br />
+</p>
+<h2>Reference</h2>
+<p>Setting Up the Module is very simple.</p>
+<h3><strong>_PROJECTNAMEASIDENTIFIER</strong>.function</h3>
+<p>bugsense.setup('YOUR-API-KEY');</p>
+<h2>Usage</h2>
+<p>var window=Ti.UI.createWindow({
+    backgroundColor:'#000'
+});</p>
+<p>window.open();</p>
+<p>var bugsense = require('com.droisys.bugsense');
+Ti.API.info("module is =&gt; " + bugsense);</p>
+<p>//d5c9c071</p>
+<p>bugsense.setup('YOUR-API-KEY');</p>
+<p>var mountainView = Titanium.Map.createAnnotation({
+    latitude:37.390749,
+    longitude:-122.081651,
+    title:"Appcelerator Headquarters",
+    subtitle:'Mountain View, CA',
+    pincolor:Titanium.Map.ANNOTATION_RED,
+    animate:true,
+    leftButton: '../images/appcelerator_small.png',
+    myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+});</p>
+<p>var mapview = Titanium.Map.createView({
+    mapType: Titanium.Map.STANDARD_TYPE,
+    region: {latitude:33.74511, longitude:-84.38993, 
+            latitudeDelta:0.01, longitudeDelta:0.01},
+    animate:true,
+    regionFit:true,
+    userLocation:true,
+    annotations:[mountainView]
+});</p>
+<p>window.add(mapview);</p>
+<p>var mapview2 = Titanium.Map.createView({
+    mapType: Titanium.Map.STANDARD_TYPE,
+    region: {latitude:33.74511, longitude:-84.38993, 
+            latitudeDelta:0.01, longitudeDelta:0.01},
+    animate:true,
+    regionFit:true,
+    userLocation:true,
+    annotations:[mountainView]
+});</p>
+<p>window.add(mapview2);</p>
+<p>//This Example will produce force close error since we are adding two maps on same window.</p>
+<h2>Author</h2>
+<p>Droisys Inc</p>
+<h2>License</h2>
+<p>GNU Public License</p>

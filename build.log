@@ -10,12 +10,14 @@ Logfile initialized
 [TRACE] adb devices returned 1 devices/emulators
 [TRACE] adb devices returned 1 devices/emulators
 [DEBUG] Device connected... (waited 20 seconds)
-[DEBUG] waited 20.159000 seconds on emulator to get ready
+[DEBUG] waited 20.163000 seconds on emulator to get ready
 [INFO] Waiting for the Android Emulator to become available
 [DEBUG] coop.tiny.daysnapper installed? True
 [INFO] Fastdev server running, deploying in Fastdev mode
 [INFO] Copying CommonJS modules...
 [INFO] Copying project resources..
+[TRACE] COPYING MODIFIED FILE: D:\Users\Matt\Dropbox\Titanium Workspace\Daysnapper4\Resources\lib\ti\global.js => D:\Users\Matt\Dropbox\Titanium Workspace\Daysnapper4\build\android\bin\assets\Resources\lib\ti\global.js
+[TRACE] COPYING MODIFIED FILE: D:\Users\Matt\Dropbox\Titanium Workspace\Daysnapper4\Resources\ui\common\ApplicationWindow.js => D:\Users\Matt\Dropbox\Titanium Workspace\Daysnapper4\build\android\bin\assets\Resources\ui\common\ApplicationWindow.js
 [TRACE] COPYING MODIFIED FILE: D:\Users\Matt\Dropbox\Titanium Workspace\Daysnapper4\Resources\ui\common\snapsView\SnapsScrollableTableView.js => D:\Users\Matt\Dropbox\Titanium Workspace\Daysnapper4\build\android\bin\assets\Resources\ui\common\snapsView\SnapsScrollableTableView.js
 [INFO] Tiapp.xml unchanged, skipping class generation
 [DEBUG] Processing Android resource drawables
