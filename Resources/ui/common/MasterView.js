@@ -8,13 +8,12 @@ function MasterView() {
 		backgroundColor:'white'
 	});
 	
-	
 	//REFACTOR change this to reference snapstableview update everywhere
 	var SnapView = require('/ui/common/snapsView/SnapsScrollableTableView');
 	
 	var snapsTable = new SnapView();
 	
-	self.SnapView = snapsTable;
+	//self.SnapView = snapsTable;
 	
 	self.add(snapsTable);
 	
@@ -90,9 +89,9 @@ function MasterView() {
 			var url = (btnAction == 'btnAdd') ? '/ui/common/snapCrud/btnAddWindow' : '/ui/common/snapsView/btnTagsWindow';
 			var masterModal = require(url);
 			var w = masterModal();
-			w.addEventListener('saveSnapAndRefresh_step3', function(newSnap) {
+			w.addEventListener('saveSnap_passBack_step3', function(newSnap) {
 				Ti.API.info('------------off to save new snap stage 4---------------');
-				snapsTable.fireEvent('saveSnapAndRefresh_step4',newSnap); // SnapScrollableTableView.js still just passing newsnap
+				snapsTable.fireEvent('saveSnap_taffySave_step4',newSnap); // SnapScrollableTableView.js still just passing newsnap
 			});
 			w.open();
 		}

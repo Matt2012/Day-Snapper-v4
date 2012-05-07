@@ -1,11 +1,10 @@
 function SnapView() {
 	
 	Ti.include('/lib/ti/global.js');
-	
-	//should all this be refactored to the form view that is the only time it is needed??	
-	Ti.include('/lib/thirdParty/taffy.js');	
+
 	var cloudSync = require('/lib/ti/cloudSync');
-	//var atlas = require('lib/ti/atlas/atlas');
+	var taffySync = require('/lib/ti/taffySync');
+	
 	
 	var self = Ti.UI.createView({
 		backgroundColor:'#FFFFFF',
@@ -13,128 +12,125 @@ function SnapView() {
 		height:375
 	});
 	
-	//var user = Titanium.App.Properties.getList(Titanium.App.Properties.getString('userID'));
-
-	var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
 	
-	
-	
-	//mySnapsDB().remove();
-	
-	var c = mySnapsDB().count();
-	
-	Ti.API.info('-----------------------------------------------------count:'+ c);
-	//if first time
-	if (c<1 || !c) {		
-		//some dummy data if empty
-		var d1 = new Date().toISOString();
-		var rightImage = iconPath('note','bottom');
-		// user.objectForKey("username")
-		//Ti.API.info('atlas=' + altas);
-		//var coordinates = [];
-		var defaultsDD = {"dateAdded":d1, "dateUpdated":d1, "dateFor":d1, "status":"live", "hasChild":true, 
-		"userID":userID,"rightImage":rightImage,"category":"note","objectId":false,"isOnline":false};
-		var r1 = {"title":"Welcome to Day Snapper.","content":"Here are a few tips to get you started","tags_array":"cool, beans"};
-		var r2 = {"title":"A short note about Tiny.coop.","content":"Tiny is a web coop. Owned and run by its users."};
-		_.extend(r1, defaultsDD);
-		_.extend(r2, defaultsDD);
-		var ar = [r1,r2];
-		var snaps = TAFFY ( ar );
-	    snaps.saveFlatFile('snapsLatest.json');
-	    Ti.API.info('fresh');
-	}
-	else
-	{
-		Ti.API.info('not fresh');
-		mySnapsDB.saveFlatFile('snapsLatest.json');
-	}
-	var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
-	
-	var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
-	//var y = mySnapsDB().get();
-		
 	var snapTable = Ti.UI.createTableView({
-		data:y,
 		height:375,
 		color:'#999'
 	});
 	self.add(snapTable);
 	
-	//add behavior
+	
+	//taffySync.cleanTaffy();
+	
+	
+	taffySync.loadTable(self);
+	
+	//sets table data on app open
+	self.addEventListener('setTableData', function(myArrayData) {
+
+		Ti.API.info('data for table '+ JSON.stringify(myArrayData));
+		snapTable.data = myArrayData;	
+	});
+
+
+	//sends all table row data (should be whole taffy row record) to new detail window
 	snapTable.addEventListener('click', function(e) {
-		//alert(e.rowData.title);
-		//Ti.API.info('Table row is----'+JSON.stringify(e));
+
 		e.rowData.tableRow = e.index;
-		Ti.API.info('adding this on click ----------------- '+JSON.stringify(e.rowData));
-		self.fireEvent('itemSelected', {snap:e.rowData});
-		return false;
+		Ti.API.info('----------- adding this on click  '+JSON.stringify(e.rowData));
+		//self.fireEvent('itemSelected', {snap:e.rowData});
+		//return false;
+		var args = {data:e.rowData,win:self};
+		var masterModal = require('/ui/common/snapsView/detailWindow');
+		var w = masterModal(args);
+		w.open();
+		
 	});
 	
-	
-	self.addEventListener('saveSnapAndRefresh_step4', function(newSnap) {
-		var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
+
+	//new snap is inserted into local taffyDB
+	self.addEventListener('saveSnap_taffySave_step4', function(newSnap) {
+
 		var d1 = new Date().toISOString();
-		var defaults = {"status":"live","isPrivate":true,"isSynced":false,"post_id":false,
+		var defaults = {"status":"live","isPrivate":true,"isSynced":false,"lastSyncDate":false,"post_id":false,
 						"dateCreated":d1,"dateUpdated":d1,"userID":userID};
 		_.extend(newSnap, defaults);
-		var newRow = mySnapsDB.insert(newSnap).get();
-		Ti.API.info("---------------------------Taffy Insert New Row! "+JSON.stringify(newRow));
-		//Ti.API.info("---------------------------Taffy Insert New Row! "+newRow[0]["userID"]+' '+newRow[0]["___id"]);
-		mySnapsDB.saveFlatFile('snapsLatest.json');
-		var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
-		//Ti.API.info('new table data '+JSON.stringify(y));
-		snapTable.data = y;
-		//run sync routine - insert row
-		var taffyID = newRow[0]["___id"];
-		Ti.API.info('------------we are at new snap stage 4: now to save to cloud---------------');
-		Ti.API.info('------------reached taffyID ' + taffyID);
-		cloudSync.insertSnap(newSnap, self, taffyID, 0); //new so row is 0
-		return false;
-	});
-	
-	self.addEventListener('saveSnapAndRefresh_step5', function(newSnap) {
-		//used as the callback when data is saved in the cloud and a cloudID generated
-		var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
-		Ti.API.info('------------whats TaffyID '+ newSnap.keys.taffyID);
-		Ti.API.info('whats post_id '+JSON.stringify(newSnap));
-		Ti.API.info('------------whats Table Row '+ newSnap.keys.tableRow);
-		var k = newSnap.keys;
-		delete newSnap.keys;
-		var z = mySnapsDB(k.taffyID).update(newSnap).get();
-		//its always the first row if new, but if this callback used for an edit need row id
-		//alert(tableRow);
-		snapTable.updateRow(k.tableRow,newSnap);
-		return false;
+		//var myTaffyDB = self.myTaffyDB;
+		var callback = {win:self, func:'saveSnap_insertTableRowSaveToCloud_step5'};
+		//taffySync.insertTaffy(newSnap, callback); //when inserted in TaffyDB table update and cloud sync called below
+		taffySync.insertTaffy(newSnap, callback);
 	});
 	
 	
-	self.addEventListener('modifySnapAndRefresh_step2', function(e) {
-		Ti.API.info('------------modifySnapAndRefresh_step2');
+	//new snap with taffyID is inserted as new row in tableview and attempt to sync row to cloud
+	self.addEventListener('saveSnap_insertTableRowSaveToCloud_step5', function(newRow) {
+
+		snapTable.insertRowBefore(0, newRow);
+		var taffyID = newRow.uid;
+		Ti.API.info('------------stage 5: tableRowInserted now SaveToCloud then update taffyID ' + taffyID);
+		cloudSync.insertSnap(newRow, self, taffyID, 0); //new so row is 0
+	});
+	
+	
+	//used as the callback when data is saved in the cloud and a cloudID, syncUpdateDate generated
+	self.addEventListener('saveSnap_taffyUpdate_step6', function(updatedSnap) {
+		
+		Ti.API.info('updated row for TaffyDB and Table '+JSON.stringify(updatedSnap));
+		var taffyID = updatedSnap.keys.taffyID;
+		var tableRow = updatedSnap.keys.tableRow;
+		delete(updatedSnap.keys);
+		var cloudUpdate = {post_id:updatedSnap.post_id,updatedDate:updatedSnap.post_id,isSynced:updatedSnap.isSynced,lastSynced:updatedSnap.lastSynced}
+		//Ti.API.info('recheck updatedsnaps'+JSON.stringify(updatedSnap));
+		var tableRefresh = (updatedSnap.status == 'live') ? true : false;
+		if(tableRefresh)
+		{
+			snapTable.updateRow(tableRow, updatedSnap); //update table row
+		}
+		taffySync.updateTaffy(taffyID, cloudUpdate);
+	});
+
+	
+	//update taffyDB and table row then callback for cloudInsert
+	self.addEventListener('updateSnap_updateTableRowUpdateTaffy_step2', function(myJsonData) {
+		
+		Ti.API.info(JSON.stringify(myJsonData));
+		Ti.API.info('------------updateSnap_updateTableRowUpdateTaffy_step2');
 		var d1 = new Date().toISOString();
-		var defaults = {"dateUpdated":d1,"isSynced":false};
-		var updatedSnap = e.updatedSnap;
+		var defaults = {"dateUpdated":d1,"isSynced":false,"lastSyncDate":false};
+		var updatedSnap = myJsonData.updatedSnap;
 		_.extend(updatedSnap, defaults);
-		//Ti.API.info('data passed on for modify '+JSON.stringify(e));
-		var updateRow = mySnapsDB(e.id).update(updatedSnap).get();
-		mySnapsDB.saveFlatFile('snapsLatest.json');
-		var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
-		snapTable.data = y;
-		//run sync routine - insert or update row
-		Ti.API.info('-------whats to be updated '+JSON.stringify(updatedSnap));
-		Ti.API.info(JSON.stringify(e));
-		taffyID = e.id;
-		cloudSync.insertSnap(updatedSnap, self, taffyID, e.tableRow); //even though updated could be first time synced
-		return false;
+
+		setTimeout(function(){
+			Ti.API.info(JSON.stringify('taffyID row to update '+myJsonData.updatedSnap.uid))
+			taffySync.loadTable(self); // lazy hide a row if archive/delete update a row if edit put the flag in e
+		},500);
+
+		var callback = {win:self, func:'updateSnap_SaveToCloud_step3', tableRow:myJsonData.tableRow};
+		taffySync.updateTaffy(updatedSnap.uid, updatedSnap, callback);
 	});
 	
+	
+	//callback from updated Taffy Row update row in tableview and attempt to sync row to cloud
+	self.addEventListener('updateSnap_SaveToCloud_step3', function(myJsonData) {
+
+		Ti.API.info('-------updateSnap_SaveToCloud_step3 '+JSON.stringify(myJsonData));
+		//Ti.API.info(JSON.stringify(e));
+		var taffyID = myJsonData.taffyID;
+		var updatedSnap = myJsonData.updatedSnap;
+		var tableRow = myJsonData.tableRow
+		
+		//even though updated could be first time synced // callback is saveSnap_taffyUpdate_step6 same as insert
+		cloudSync.insertSnap(updatedSnap, self, taffyID, tableRow); 
+	});
 	
 	
 	self.addEventListener('doSync', function() {
 		var refreshTable = cloudSync.doSync();	
 		if(refreshTable)
 		{
-			var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
-			var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
+			//var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
+			//var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
+			var y = taffySync.getTaffy('all_live');
 			snapTable.data = y;
 		}
 	});

@@ -7,12 +7,12 @@ function ActionBarView(args) {
 	if(typeof args.pos !== 'undefined' && args.pos === 'top')
 	{
 		var labelColour = '#DDDDDD';
-		var barBorderTop = 43;
+		var barBorderTop = GetHeight(43);
 		
 		var self = new ui.Component(new ui.View({
-			height:44,
+			height:GetHeight(44),
 			backgroundColor:'#F1F1F1',
-			top:0
+			top:GetHeight(0)
 		}));
 		
 //		var backbutton = Titanium.UI.createButton({ backgroundImage:'images/.png', width:48, height:27 }); 
@@ -30,7 +30,7 @@ function ActionBarView(args) {
 		var barBorderTop = 0;
 		
 		var self = new ui.Component(new ui.View({
-			height:44,
+			height:GetHeight(44),
 			backgroundColor:'#F1F1F1',
 			bottom:0
 		}));
@@ -38,10 +38,10 @@ function ActionBarView(args) {
 	}
 
 	var barBorder = Ti.UI.createView({
-        height: 1,
-        width: '100%',
+        height: GetHeight(1),
+        width:Ti.UI.SIZE,
         backgroundColor: '#ccc',
-        top:barBorderTop
+        top:GetHeight(barBorderTop)
     });
     self.add(barBorder);
 	
@@ -51,7 +51,7 @@ function ActionBarView(args) {
 	//title label or image if none provided
 	if (args.title) {
 		self.add(new ui.Label(args.title, _.extend({
-			left:5
+			left:GetWidth(5)
 		},theme.headerText)));
 	}
 	else {
@@ -70,54 +70,74 @@ function ActionBarView(args) {
 				else
 				{
 					//Add Back Button
-					 var btnBackView = new ui.View({
-						left:0,
-						width:45
-					});
+					if (Ti.Platform.osname === 'android') {
+						//use android 'holo' style back button					
+						 var btnBackView = new ui.View({
+							left:0,
+							width:GetWidth(45)
+						});
+						
+						var btnBackImage1 = new ui.ImageView(iconPath('holo-back','top'),{
+							left:GetWidth(2),
+							height:GetHeight(12),
+							width:GetWidth(7)
+						});
+						
+						var btnBackImage2 = new ui.ImageView(iconPath('appIcon','top'),{
+							left:GetWidth(12),
+							height:GetHeight(30),
+							width:GetWidth(30)
+						});
+						
+						btnBackView.add(btnBackImage1);
+						
+						btnBackView.add(btnBackImage2);
 					
-					var btnBackImage1 = new ui.ImageView(iconPath('holo-back','top'),{
-						left:2,
-						height:12,
-						width:7
-					});
+						btnBackView.addEventListener('click', function(e) {
+							self.fireEvent('close');
+							Ti.API.info('------------close window');
+							//self.close();
+						});
+						
+						self.add(btnBackView);
+						
+						var tr = Ti.UI.create2DMatrix();
+						tr = tr.rotate(353);
+	
+						windowLabel = new ui.Label(args.type, {
+						  color:labelColour,
+						  bottom:0,
+						  left:GetWidth(45),
+						  height:GetHeight(60),
+						  font:{fontSize:40},
+						  textAlign:'left',
+						  transform:tr
+						});
+						self.add(windowLabel);
+					}
+					else
+					{
+						//Use iOS system nav back button
+						var closeButton = Ti.UI.createButton({
+							title:L('done'),
+							style:Ti.UI.iPhone.SystemButtonStyle.BORDERED
+						});
+						
+						closeButton.addEventListener('click', function() {
+							self.close();
+						});
+						
+						self.rightNavButton = closeButton;
+					}
 					
-					var btnBackImage2 = new ui.ImageView(iconPath('appIcon','top'),{
-						left:12,
-						height:30,
-						width:30
-					});
-					
-					btnBackView.add(btnBackImage1);
-					
-					btnBackView.add(btnBackImage2);
-				
-					btnBackView.addEventListener('click', function(e) {
-						self.fireEvent('close');
-					});
-					
-					self.add(btnBackView);
-					
-					var tr = Ti.UI.create2DMatrix();
-					tr = tr.rotate(353);
-
-					windowLabel = new ui.Label(args.type, {
-					  color:labelColour,
-					  bottom:0,
-					  left:45,
-					  height:60,
-					  font:{fontSize:40},
-					  textAlign:'left',
-					  transform:tr
-					});
-					self.add(windowLabel);
 				}
 			}
 			else
 			{
 				self.add(new ui.ImageView('../../images/appc_white.png', {
-					left:5,
-					width:161,
-					height:32
+					left:GetWidth(5),
+					width:GetWidth(161),
+					height:GetHeight(32)
 				}));
 			}
 		}
@@ -130,8 +150,8 @@ function ActionBarView(args) {
 		var buttonData = args.buttons[buttonId];
 		
 		var btnLabel, btnImage, button = new ui.View({
-			width:buttonData.width,
-			right:buttonOffset,
+			width:GetWidth(buttonData.width),
+			right:GetWidth(buttonOffset),
 			id:buttonId
 		});
 		
@@ -142,7 +162,7 @@ function ActionBarView(args) {
 				color:labelColour,
 				height:'auto',
 				width:'auto',
-				left:30,
+				left:GetWidth(30),
 				id:buttonId||buttonData.title,
 				font: {
 					fontSize:14,
@@ -153,8 +173,8 @@ function ActionBarView(args) {
 		}
 		else if (buttonData.icon) {
 			var btnImage = new ui.ImageView(iconPath(buttonData.icon,args.pos),{
-				height:20,
-				width:20
+				height:GetHeight(20),
+				width:GetWidth(20)
 			});
 
 			if(buttonData.icon=='sync')
@@ -193,9 +213,9 @@ function ActionBarView(args) {
 		{
 			self.add(new ui.View({
 				backgroundColor:'#dedede',
-				width:1,
-				height:42,
-				right:buttonOffset+buttonData.width
+				width:GetWidth(1),
+				height:GetHeight(42),
+				right:GetWidth(buttonOffset+buttonData.width)
 			}));
 		}
 		

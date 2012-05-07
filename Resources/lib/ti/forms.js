@@ -119,11 +119,8 @@ var addField = function(field, fieldRefs, labelRefs) {
 		fieldObject.id = id;
 		fieldObject.keyboardType = keyboardMap[type];
 		fieldObject.value = field.value;
-		
-		
 		//fieldObject.visible = false;
 		//fieldObject.value = 'test';
-		
 		fieldObject.passwordMask = type === exports.TYPE_PASSWORD;
 		handleStyle(form, fieldObject, title, isHidden, labelRefs);
 	} 
@@ -175,8 +172,10 @@ var addField = function(field, fieldRefs, labelRefs) {
 	else if (type === exports.TYPE_DATE) {
 		if (isAndroid) {
 			fieldObject = Ti.UI.createPicker({
-				type: Ti.UI.PICKER_TYPE_DATE
+				type: Ti.UI.PICKER_TYPE_DATE,
+				value:field.value
 			});
+			
 			//fieldObject.type = type;
 			fieldObject.id = id;
 			handleStyle(form, fieldObject, title, isHidden, labelRefs);
@@ -184,6 +183,7 @@ var addField = function(field, fieldRefs, labelRefs) {
 			fieldObject = Ti.UI.createTextField(textFieldDefaults);
 			fieldObject.type = type;
 			fieldObject.id = id;
+			fieldObject.value = field.value;
 			handleStyle(form, fieldObject, title, isHidden, labelRefs);
 			setupPickerTextField(fieldObject, Ti.UI.PICKER_TYPE_DATE);
 		}
@@ -219,17 +219,19 @@ var addField = function(field, fieldRefs, labelRefs) {
         })
 	} else if (type === exports.TYPE_SUBMIT  || type === exports.TYPE_BUTTON ) {
 		var buttonHeight = (isHidden) ? 0 : '40dp';
-		var button = Ti.UI.createButton({
+		var fieldObject = Ti.UI.createButton({
 			title: title,
+			id:id,
 			height: buttonHeight,
 			width: '100dp',
 			top:0
 		});
-
-		button.addEventListener('click', function(e) {
+		fieldObject.id = id;
+		
+		fieldObject.addEventListener('click', function(e) {
 			form.fireEvent(id);	
 		});	
-		form.container.add(button);
+		form.container.add(fieldObject);
 	}
 	
 	

@@ -32,11 +32,11 @@ Component.prototype.remove = function(tiChildView) {
 	var v = tiChildView.viewProxy||tiChildView;
 	this.viewProxy.remove(v);
 };
-Component.prototype.open = function(args) {
+/*Component.prototype.open = function(args) {
 	if (this.viewProxy.open) {
 		this.viewProxy.open(args||{animated:false});
 	}
-};
+};*/
 Component.prototype.close = function(args) {
 	if (this.viewProxy.close) {
 		this.viewProxy.close(args||{animated:false});
@@ -89,6 +89,75 @@ Component.prototype.release = function() {
 
 //adding to public interface
 exports.Component = Component;
+
+
+Component.prototype.open = function(options) {
+	alert('a');
+    // if the window is not closed, do not open
+    if (this.currentState != this.stateClosed) {
+      kroll.log(TAG, "unable to open, window is not closed");
+      return;
+    }
+    kroll.log(TAG, "opening");
+    this.currentState = this.stateOpening;
+
+    if (!options) {
+      options = {};
+    } else {
+      this._properties.extend(options);
+    }
+
+    // Determine if we should create a heavy or light weight window.
+    this.isActivity = false;
+    newActivityRequiredKeys.forEach(function(key) {
+      if (key in this._properties) {
+        this.isActivity = true;
+      }
+    }, this);
+
+    if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
+      this.isActivity = true;
+    }
+
+    // Set any cached properties on the properties given to the "true" view
+    if (this.propertyCache) {
+      this._properties.extend(this.propertyCache);
+    }
+
+    var needsOpen = false;
+    if (this.isActivity) {
+      this.window = new ActivityWindow(this._properties);
+      this.view = this.window;
+      needsOpen = true;
+
+    } else {
+      this.window = this.getActivityDecorView();
+      this.view = new UI.View(this._properties);
+      this.view.zIndex = Math.MAX_INT - 2;
+      this.window.add(this.view);
+    }
+
+    this.setWindowView(this.view);
+    this.addChildren();
+
+    if (needsOpen) {
+      kroll.log(TAG, "needs open - Activity");
+      var self = this;
+      this.window.on("open", function () {
+        self.setWindowView(self.view);
+        self.postOpen();
+      });
+
+      this.window.open();
+      //this.setWindowView(this.view);
+
+    } else {
+      this.postOpen();
+    }
+    
+  }
+
+
 
 
 //sugared/shortened Titanium UI object constructors - many common ones included, add/remove as needed

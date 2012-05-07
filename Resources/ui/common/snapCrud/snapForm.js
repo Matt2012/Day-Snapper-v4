@@ -10,19 +10,40 @@ function snapForm(btnAction, data) {
 	});
 
 	var forms = require('/lib/ti/forms');
-	
-	insertLocationValues();
-	
+
+	if(btnAction != 'btnEdit')
+	{
+		//new snap
+		var category = btnAction.substring(3).toLowerCase(); 
+		var d1 = false;
+		var d2 = new Date().toISOString();
+	}
+	else
+	{
+		//edit snap
+		var moment = require('/lib/thirdParty/moment.min');
+		var da = moment(data.dateFor, "YYYY,MM,DD");
+		var db = new Date(da);
+		//Ti.API.info('------------reached here '+db);
+		var category = data.category; 
+		//var d1 = new Date(2014,3,12);
+		var d1 = new Date(da);
+		//var d3  = new Date(2014,3,12);
+		//Ti.API.info('------------reached here '+d3);
+		var d2 = data.dateFor;
+	}
+
+
 	//var specific = require('/ui/common/snapCrud/snapForm'+btnAction); //used for call camera etc functions
 
-	if(btnAction == 'btnNote')
+	if(category == 'note')
 	{
 		var fields = [
 		  { title:'Quick Note', type:'textarea', id:'postText'  }
 		];
 		
 	}
-	else if(btnAction == 'btnPhoto')
+	else if(category == 'photo')
 	{
 		var fields = [
 		  { title:'Thumbnail', type:'photo', id:'photo', value:false  },
@@ -38,15 +59,15 @@ function snapForm(btnAction, data) {
 		
 	}
 	
-	var d1 = new Date().toISOString();
+	
 		
 	var fieldsCore = [
 		{ title:'Title', type:'text', id:'postTitle', isHidden:true  },
-		{ title:'Date For', type:'date', id:'dateFor', isHidden:true  },
+		{ title:'Date For', type:'date', id:'dateFor', isHidden:true, value:d1  },
 		{ title:'Location (click to change)', type:'text', id:'geoLocation', isHidden:true},
 		{ title:'Tags (separate with a comma)', type:'text', id:'tags', isHidden:true  },
 		{ title:'Snap (save!)', type:'submit', id:'submitForm'},
-		{ title:'system:datefor', type:'text', id:'dateforval', value:d1, isHidden:true },
+		{ title:'system:datefor', type:'text', id:'dateforval', value:d2, isHidden:true },
 		{ title:'system:coordinates', type:'text', id:'coordinatesval', isHidden:true},
 		{ title:'system:id', type:'text', id:'id', isHidden:true },
 	];
@@ -72,23 +93,16 @@ function snapForm(btnAction, data) {
 	
 	win.add(form);
 	
-	win.addEventListener('prepareForm', function(e) {
-		//populate id
-		//called if in edit mode
-		//var d0 = moment(e.snap.dateFor);
-		//var d1 = d0.format("dddd, MMMM Do YYYY, h:mm a");
-		//lbTitle.text = e.snap.content;
-		//lbDate1.text = d1;
-		
-	});
+
+
 	
-	var topIcon = btnAction.substring(3).toLowerCase();
+	
 	var topBar = new ActionBarView({
 		type:data.name,
 		pos:'top',
 		buttons: {
 			btnIcon: {
-				icon:topIcon,
+				icon:category,
 				width:40
 			}
 		}
@@ -119,6 +133,30 @@ function snapForm(btnAction, data) {
 	
 	var f=form.fieldRefs;
 	var l=form.labelRefs;
+	
+	var coordinates = insertLocationValues();
+	Ti.API.info(JSON.stringify(coordinates));
+	f.coordinatesval.value = coordinates;
+	
+	Ti.API.info(JSON.stringify(f));
+	
+	if(typeof data.title != "undefined")
+	{
+		Ti.API.info('Preparing form for edit');
+		//populate id
+		f.postTitle.value = data.title;
+		f.postText.value = data.content;
+		
+		f.tags.value = data.tags_array;
+		f.coordinatesval.value = data.coordinates;
+		f.id.value = data.uid+''; //makes sures its a string so no formatting // may not be needed
+		
+		l.label_postText.text = 'Edit ' + l.label_postText.text;
+		f.submitForm.title = 'Edit Snap';
+
+		var topIcon = data.category;
+	}
+	
 		
 	bottomBar.addEventListener('buttonPress', function(e) {
 		//slide to advanced view
@@ -191,6 +229,7 @@ function snapForm(btnAction, data) {
 	
 	form.addEventListener('dateFor', function(value)
 	{
+			Ti.API.info('------------date for changed '+value);
 			var d1 = new Date(value).toISOString();
 			f.dateforval.value = d1;
      })
@@ -198,19 +237,20 @@ function snapForm(btnAction, data) {
 	form.addEventListener('submitForm', function()
 	{
 		var values = {};
-		for (var i in f) {
+/*		for (var i in f) {
 			values[i] = f[i].value;	
 			Ti.API.info('------------ '+values[i] +' = '+ f[i].value);
-		}
+		}*/
 		
 		var textSnap = f['postText'].value;
+		var coordinates = f['coordinatesval'].value;
 		if(textSnap=='')
 		{
 			alert('Note snap can not be empty');
 		}
 		else
 		{
-			var icon = iconPath(topIcon,'bottom'); //if note set at top
+			var icon = iconPath(category,'bottom'); //if note set at top
 			//Refactor Move title to function
 			var title = f['postTitle'].value;
 			//Ti.API.info('------------reached here 1 '+title);
@@ -229,12 +269,25 @@ function snapForm(btnAction, data) {
 			}
 			
 			
-			var coordinates = [];
+			//var coordinates = [];
 
-			var newSnap = {'title':titleSnap,'content':textSnap,'category':topIcon,'rightImage':icon,
+			var snap = {'title':titleSnap,'content':textSnap,'category':category,'rightImage':icon,
 							'tags_array':f['tags'].value,'coordinates':coordinates,'dateFor':f['dateforval'].value};
-			Ti.API.info('------------off to save new snap stage 1---------------');
-			win.fireEvent('saveSnapAndRefresh_step1', newSnap); //selectiorActions.js (just passes it back to 
+							
+			if(f['id'].value=='')
+			{
+				Ti.API.info('------------off to save new snap stage 1---------------');
+				win.fireEvent('saveSnap_passBack_step1', snap); //selectorAction.js (just passes it back btnAddWindow.js) 
+			}
+			else
+			{
+				snap.post_id = data.post_id; //CloudID
+				snap.uid = data.uid; //TaffyID
+				Ti.API.info('------------off to save updated snap stage 1---------------');
+				var snap = {updatedSnap:snap, tableRow:data.tableRow};
+				Ti.API.info(JSON.stringify(snap));
+				win.fireEvent('updateSnap_passBack_step1', snap); //selectorAction.js (just passes it back btnAddWindow.js) 
+			}
 			win.close();
 		}
 	});
@@ -262,11 +315,9 @@ module.exports = snapForm;
 function insertLocationValues()
 {
 	
-	//add location this should happen on form on open so it can gecode
+			//add location this should happen on form on open so it can gecode
 			var atlas = require('lib/ti/atlas/atlas');
-			//Ti.API.info(JSON.stringify(atlas));
-			//var z = atlas.Geo;
-			//Ti.API.info('is enabled ' + atlas.Geo.enabled() );
+
 			if(atlas.Geo.enabled())
 			{
 				var coordinates = atlas.Geo.getCurrentCoordinates(function (e) {
@@ -276,23 +327,40 @@ function insertLocationValues()
 						
 						var old = {};
 						old.latitude = '';
+						old.longitude = '';
 						if(old.latitude!='')
 						{
-							alert('Do you want to over write current location with this one:'+ e.latitude);
+							var m = "Do you want to overwrite your saved location with your current one ?";
+							var confirmAlert = Titanium.UI.createAlertDialog({ title: t, message: m, buttonNames: ['Yes', 'No'], cancel: 1 });
+							
+								confirmAlert.addEventListener('click', function(e) { 
+							   Titanium.API.info('e = ' + JSON.stringify(e));
+							   //Clicked cancel, first check is for iphone, second for android
+							   if (e.cancel === e.index || e.cancel === true) {
+								  return;
+							   }
+							   if(e.index==0) {
+									Titanium.API.info('Clicked button 0 (YES)');
+									return '['+old.latitude+','+old.longitude+']';
+							   }
+							});
+							confirmAlert.show();
 						}
-						
-						return e;
+						else
+						{
+							return '['+e.latitude+','+e.longitude+']';
+						}
 					}
 					else {
 						Ti.API.info(JSON.stringify(e));
 						Ti.API.info("Problem: " + e.message);
-						return [];
+						return '[]';
 					}
 				});
-				//Ti.API.info(JSON.stringify(y));
-				//var coordinates = (y) ? y : [];
 			}
-	
-	
+			else
+			{
+				return '[]';
+			}
 	
 }

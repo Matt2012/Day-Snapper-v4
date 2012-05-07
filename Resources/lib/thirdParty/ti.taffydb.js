@@ -1,24 +1,169 @@
+/*jslint maxerr:10000 */
 /*
+
+Project Name : TiTaffyDb
+Ti Hacker: Ben Bahrenburg ( twitter @benCoding)
+About: This project is a Titanium Port of the TaffyDb created by Ian Smit ( twitter @mriansmith) project available at taffydb.com 
+To make TaffyDb more Titanium friendly several updates have been made, please check the readme for details.
+
+==============================================================================================================================
+TAFFYDB LICENSE SECTION
 
 Software License Agreement (BSD License)
 http://taffydb.com
 Copyright (c)
 All rights reserved.
 
-
 Redistribution and use of this software in source and binary forms, with or without modification, are permitted provided that the following condition is met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+==============================================================================================================================
 */
+
+
+var TiHelpers={};
+// ****************************************
+// * Helpers to make this work with Titanium
+// ****************************************
+(function () {
+	TiHelpers.safeString = function(value){
+		if(value==undefined){
+			return '';
+		}
+	
+		if(value==null){
+			return '';
+		}
+		return value;	
+	};	
+	function findPersistMode(settings){
+		var results = 'file';
+		if(settings.hasOwnProperty('persistMode')){
+			if((settings.persistMode!==undefined)&&(settings.persistMode!==null)){
+				results=settings.persistMode;
+			}
+		}
+		return results;
+	};
+	
+	function createTaffyFolder(){
+		var parent = Ti.Filesystem.applicationDataDirectory;
+		var taffFolder = Ti.Filesystem.getFile(parent, 'titaffydb');
+		if(!taffFolder.exists()){
+		  taffFolder.createDirectory();
+		}			
+	};
+
+	function fetchTaffyFile(dbName){
+		createTaffyFolder();
+		var parent = Ti.Filesystem.applicationDataDirectory;
+		var taffFolder = parent + 'titaffydb';			
+		var taffyFile = Ti.Filesystem.getFile(taffFolder, dbName.toUpperCase());
+		return taffyFile;
+	};
+	function deleteTaffyDbFile(dbName){
+		var taffyFile = fetchTaffyFile(dbName);
+		if(taffyFile.exists()){
+			taffyFile.deleteFile();
+		}
+		taffyFile=null;		
+	};
+
+	function taffyDbFileExists(dbName){
+		var taffyFile = fetchTaffyFile(dbName);
+		var results = taffyFile.exists();
+		taffyFile=null;
+		return results;		
+	};
+	function taffyDbPropExists(dbName){
+		var fetchTest = Ti.App.Properties.getString('ti_taffydb_' + dbName.toUpperCase(),'');
+		return (TiHelpers.safeString(fetchTest).length===0);	
+	};
+
+	function readFromFile(dbName){
+		var taffyFile = fetchTaffyFile(dbName);
+		
+		if(taffyFile.exists()){
+			try{
+				var contents = taffyFile.read();
+				taffyFile=null;
+				if((contents==null)||(contents==null)){
+					return null;
+				}else{
+					return JSON.parse(contents);
+				}
+			}catch(err){
+				Ti.API.info('TaffyDb Load Error: ' + err);
+				throw "Invalid TaffyDb file";
+			}
+		}else{
+			taffyFile=null;
+			return null;
+		}		
+	};
+
+	function readFromProp(dbName){
+		try{
+			var fetchTest = Ti.App.Properties.getString('ti_taffydb_' + dbName.toUpperCase(),'');
+			if(TiHelpers.safeString(fetchTest).length===0){
+				return null;
+			}else{
+				return JSON.parse(fetchTest);
+			}
+		}catch(err){
+			Ti.API.info('TaffyDb Load Error: ' + err);
+			throw "Invalid TaffyDb file";
+		}	
+	};
+	
+	function saveTaffyDbFile(dbName,dbObject){
+		var taffyFile = fetchTaffyFile(dbName);
+		taffyFile.write(JSON.stringify(dbObject));
+		taffyFile=null;		
+	};
+
+	TiHelpers.readTaffyDb = function(dbName,settings){
+		var persistMode = findPersistMode(settings);
+		if(persistMode.toLowerCase().trim()==='property'){
+				readFromProp(dbName);
+		}else{
+			return readFromFile(dbName);	
+		}
+	};
+		
+	TiHelpers.saveTaffyDb = function(dbName,dbObject,settings){
+		var persistMode = findPersistMode(settings);
+		if(persistMode.toLowerCase().trim()==='property'){
+			Ti.App.Properties.setString('ti_taffydb_' + dbName.toUpperCase(),JSON.stringify(dbObject));
+		}else{
+			return saveTaffyDbFile(dbName,dbObject);	
+		}		
+	};
+
+	TiHelpers.taffyDbExists = function(dbName,settings){
+		var persistMode = findPersistMode(settings);
+		if(persistMode.toLowerCase().trim()==='property'){
+			return taffyDbPropExists(dbName);
+		}else{
+			return taffyDbFileExists(dbName);	
+		}
+	};	
+	
+	TiHelpers.deleteTaffyDb = function(dbName,settings){
+		var persistMode = findPersistMode(settings);
+		if(persistMode.toLowerCase().trim()==='property'){
+			Ti.App.Properties.removeProperty('ti_taffydb_' + dbName.toUpperCase());
+		}else{
+			return deleteTaffyDbFile(dbName);	
+		}
+	};		
+})();
+
 // Setup TAFFY Function (nameSpace) to return an object with methods.
 var TAFFY; 
 (function () {
-    "use strict";
-    if (!TAFFY) {
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
@@ -169,7 +314,7 @@ var TAFFY;
         	 			"___id" : f["___id"]
         	 			}
         	 		 }
-					
+
                     // Loop over each value on the object to prep match type and match value
                     eachin(f, function (v, i) {
 
@@ -211,7 +356,7 @@ var TAFFY;
                                     	su = false;
                                     	s = s.substring(1, s.length);
                                 	}
-								
+
 									 // get the match results based on the s/match type
                                     var r = ((s === "regex") ? (mtest.test(mvalue)) : 
                                             (s === "lt") ? (mvalue < mtest) : 
@@ -233,7 +378,7 @@ var TAFFY;
                                             (T[s] && T.isFunction(T[s])) ? T[s](mvalue,mtest) :
                                             (su === f));
                                     r = (r && !su) ? false : (!r && !su) ? true : r; 
-								 
+
                                     return r;
                                 };
                                 c.push(matchFunc)
@@ -282,7 +427,7 @@ var TAFFY;
                         };
                     return f;
                 }
-				
+
 				// if function
 				if (T.isFunction(f)) {
 					return f;
@@ -296,7 +441,7 @@ var TAFFY;
                 // * Returns: the array sorted
                 // * Purpose: Accept filters such as "[col], [col2]" or "[col] desc" and sort on those columns
                 // **************************************** 
-			
+
                 var sortFunc = function (a, b) {
                         // function to pass to the native array.sort to sort an array
                         var r = 0;
@@ -482,7 +627,7 @@ var TAFFY;
                nc.q.push(returnFilter(f));
                nc.filterRaw.push(f);
             });
-			
+
             return this.getroot(nc);
         });
         
@@ -614,9 +759,7 @@ var TAFFY;
             
             return c;
         });
-       
-
-
+                
         API.extend("count", function () {
             // ****************************************
             // *
@@ -848,8 +991,8 @@ var TAFFY;
             	});
             return ra;
         });
-		
-		
+
+
         var runFilters = function (r, filter) {
                 // ****************************************
                 // *
@@ -907,11 +1050,14 @@ var TAFFY;
                         onDBChange: false,
                         storageName: false,
                         forcePropertyCase: null,
-                        cacheSize: 100
+                        cacheSize: 100,
+                        persistMode:'file',
+                        autoCommit:false
                     },
                     dm = new Date(),
                     CacheCount = 0,
                     CacheClear = 0,
+                    dirtyTransCount = 0;
                     Cache = {};
                 // ****************************************
                 // *
@@ -925,8 +1071,8 @@ var TAFFY;
                 // * settings.forcePropertyCase = on insert force the proprty case to be lower or upper. default lower, null/undefined will leave case as is
                 // * dm = the modify date of the database, used for query caching
                 // **************************************** 
-				
-				
+
+
 				var runIndexes = function (indexes) {
                 // ****************************************
                 // *
@@ -957,7 +1103,7 @@ var TAFFY;
 		        	 		each(runIndexes(r),function (rr) {
 		        	 			records.push(rr);
 		        	 		});
-		        	 		
+
 		        	 	});
 		        	 }
  				});
@@ -967,7 +1113,7 @@ var TAFFY;
             
        		return records;
        }
-				
+
 
                 var DBI = {
                     // ****************************************
@@ -980,6 +1126,8 @@ var TAFFY;
                         // * Takes: an optional new modify date
                         // * Purpose: used to get and set the DB modify date
                         // **************************************** 
+                        dirtyTransCount++; //Increase the transaction count
+                         
                         if (nd) {
                             dm = nd;
                             Cache = {};
@@ -991,10 +1139,15 @@ var TAFFY;
                         		settings.onDBChange.call(TOb);
                         	},0)
                         }
-                        if (settings.storageName) {
-                        	setTimeout(function () {
-                        		localStorage.setItem('taffy_'+settings.storageName,JSON.stringify(TOb));
-                        	});
+                        //Only push if we have auto commit, this avoids IO issues 
+                        //but requires the user commits or saves to persist their changes
+                        if (settings.autoCommit) {
+                        	//Even if autoCommit is enabled they need to provide a name
+                        	if(TiHelpers.safeString(settings.storageName).trim().length >0){
+	                        	setTimeout(function () {
+	                        		root.saveDb(settings.storageName)
+	                        	});                        		
+                        	}
                         }
                         return dm;
                     },
@@ -1101,6 +1254,17 @@ var TAFFY;
                         // * Purpose: remove a record, changes its ___s value to false
                         // **************************************** 
                         TOb[ID[id]].___s = false;
+                        dirtyTransCount++;
+                    },
+                    resetDb : function(){
+						TOb = [];
+	                    ID = {};
+	                    RC = 1;
+	                    CacheCount = 0;
+	                    CacheClear = 0;
+	                    Cache = {};                    	
+                    	dm=new Date();
+                    	dirtyTransCount=0; //Set the dirty transaction count to zero
                     },
                     removeCommit: function (runEvent) {
                         // ****************************************
@@ -1163,9 +1327,9 @@ var TAFFY;
 			                		returnq = results;
 			                	} else {
 			                		// use indexes
-			                		
+
 			                		var indexed = runIndexes(context.index);
-			    					
+
 			                		// run filters
 			                		each(indexed, function (r) {
                                	   		// Run filter to see if record matches query
@@ -1240,7 +1404,16 @@ var TAFFY;
                     }
                 }
 
-
+				var helpers = {
+					hasDbName : function(dbName){
+	                   	if(TiHelpers.safeString(dbName).trim().length>0){
+	                   		settings.storageName=dbName;
+	                   		return true;
+	                   	}else{
+	                   		return (TiHelpers.safeString(settings.storageName).trim().length>0);
+	                   	}							
+					}
+				}
                 var root = function () {
                         // ****************************************
                         // *
@@ -1255,6 +1428,9 @@ var TAFFY;
                         var iAPI = TAFFY.mergeObj(TAFFY.mergeObj(API, {
                             insert: undefined
                         }), {
+                        	getSettings : function(){
+                        		return settings;
+                        	},
                             getDBI: function () {
                                 return DBI;
                             },
@@ -1316,17 +1492,23 @@ var TAFFY;
                     DBI.insert(d);
                 }
 
-				
+
                 root.insert = DBI.insert;
                 root.TAFFY = true;
                 root.sort = DBI.sort;
+                
                 // ****************************************
                 // *
                 // * These are the methods that can be accessed on off the root DB function. Example dbname.insert();
-                // **************************************** 
+                // ****************************************                 
+                //Provides access to the Db Name
+                root.name = settings.storageName;
+				//Helper function to allow for each access to the setting object
+                root.readSettings = function(){
+                	return settings;
+                }                
                 root.settings = function (n) {
                     // ****************************************
-                    // *
                     // * Getting and setting for this DB's settings/events
                     // **************************************** 
                     if (n) {
@@ -1338,43 +1520,90 @@ var TAFFY;
                     }
                     return settings;
                 }
-				
-				// ****************************************
-                // *
-                // * These are the methods that can be accessed on off the root DB function. Example dbname.insert();
-                // **************************************** 
-                root.store = function (n) {
+
+				root.exists = function (name){
                     // ****************************************
-                    // *
-                    // * Setup localstorage for this DB on a given name
-                    // * Pull data into the DB as needed
+                    // * Checks if an existing if exists
+                    // * Throw error if no db Name is provided
                     // **************************************** 
-                    var r = false;
-                    if (localStorage) {
-                    if (n) {
-                       var i = localStorage.getItem('taffy_'+n);
-                       if (i && i.length > 0) {
-                       		root.insert(i);
-                       		r = true;
-                       }
-                       if (TOb.length > 0) {
-                       	setTimeout(function () {
-                        	 localStorage.setItem('taffy_'+settings.storageName,JSON.stringify(TOb));
-                       	});
-                       }
+                    if(!helpers.hasDbName(name)){
+                    	return false;
+                    }					
+                   	return TiHelpers.taffyDbExists(settings.storageName,settings); 					
+				};
+				root.destroy = function (name){
+                    // ****************************************
+                    // * Removes the current db from persistent storage and memory
+                    // * Throw error if no db Name is provided
+                    // **************************************** 						
+                   	if(!helpers.hasDbName(name)){
+               			throw "No db name provided";	
+                    }	
+                   	//Delete contents on disk
+                   	TiHelpers.deleteTaffyDb(settings.storageName,settings);
+                   	//Reset objects in memory	
+                   	DBI.resetDb();
+                   	return;			
+				};
+				root.open = function (name){
+                    // ****************************************
+                    // * Loads an existing db if it exists, if nothing exists creates an empty open
+                    // * Throw error if no db Name is provided
+                    // **************************************** 					
+                   	if(!helpers.hasDbName(name)){
+               			throw "No db name provided";	
+                    }	
+                                    					
+					TOb=TiHelpers.readTaffyDb(settings.storageName,settings);
+					//If there wasn't anything returned
+					//assuming we are resettings
+					if(TOb===null){
+						DBI.resetDb();
 					}
-					root.settings({storageName:n});
-					};
-                    return root;
-                }
-				
-				root.saveFlatFile = function(filename) {
-					var fileObj =Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
-					fileObj.write(JSON.stringify(TOb)); // the response you get
-					Ti.API.info("FlatFileDB saved");
+					dirtyTransCount=0; //Set the dirty transaction count to zero
+					return root;
 				}
 				
-				// ****************************************
+                // ****************************************
+                // * Helper function to push to persistent storage if we already have the db name
+                // * Method ignored if name not already provided
+                // ****************************************                 
+                root.commit = function(){
+                	var dbName = TiHelpers.safeString(settings.storageName).trim();
+                	if(dbName.length===0){
+                		return;
+                	}
+                	root.save(dbName)
+                };
+                root.save = function (name) {
+                    // ****************************************
+                    // * Save the Db contents to the presistence mode in settings (default is file)
+                    // * Throw error if no db Name is provided
+                    // **************************************** 
+                   	if(TiHelpers.safeString(name).trim().length>0){
+                   		settings.storageName=name; //Make sure we keep the settings correct
+                   	}else{
+                   		//Check if we have something in our settings file from before
+               			if(TiHelpers.safeString(settings.storageName).trim().length===0){
+               				throw "No db name provided";	
+               			}
+                   	}                  	
+
+                   	//Check if we have any records to save
+                   	if (TOb.length > 0) {
+                   		TiHelpers.saveTaffyDb(settings.storageName,TOb,settings);
+                   	}else{
+                   		//If we have dirty records and no rows in the db object
+                   		//that means we have an empty db, make sure we sync to disk
+                   		if(dirtyTransCount>0){
+                   			TiHelpers.deleteTaffyDb(settings.storageName,settings);
+                   		}
+                   	}
+                   	dirtyTransCount=0; //Set the dirty transaction count to zero
+                    return root;
+                }
+
+                // ****************************************
                 // *
                 // * Return root on DB creation and start having fun
                 // **************************************** 
@@ -1436,13 +1665,7 @@ var TAFFY;
             return c;
         };
 
-		TAFFY.loadFlatFile = function(filename) {
-			var fileObj =Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
-			if(fileObj.exists()){
-					var fileObjRef = fileObj.read().text;	
-					return fileObjRef;
-			}
-		};
+
 
         // ****************************************
         // *
@@ -1656,254 +1879,6 @@ var TAFFY;
                 }(ts[z]))
             }
         }(["String", "Number", "Object", "Array", "Boolean", "Null", "Function", "Undefined"]));
+})();
 
-    }
-})()
-
-if( typeof(exports) === 'object' ){
-  exports.taffy = TAFFY;
-}
-
-
-/*
-         http://www.JSON.org/json2.js
-         2010-11-17
-         Public Domain.
-         */
-        var JSON;
-        if (!JSON) {
-            JSON = {};
-        }
-
-        (function () {
-            "use strict";
-
-            function f(n) {
-                return n < 10 ? '0' + n : n;
-            }
-
-            if (typeof Date.prototype.toJSON !== 'function') {
-
-                Date.prototype.toJSON = function (key) {
-
-                    return isFinite(this.valueOf()) ? this.getUTCFullYear() + '-' + f(this.getUTCMonth() + 1) + '-' + f(this.getUTCDate()) + 'T' + f(this.getUTCHours()) + ':' + f(this.getUTCMinutes()) + ':' + f(this.getUTCSeconds()) + 'Z' : null;
-                };
-
-                String.prototype.toJSON = Number.prototype.toJSON = Boolean.prototype.toJSON = function (key) {
-                    return this.valueOf();
-                };
-            }
-
-            var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-                escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-                gap, indent, meta = {
-                    '\b': '\\b',
-                    '\t': '\\t',
-                    '\n': '\\n',
-                    '\f': '\\f',
-                    '\r': '\\r',
-                    '"': '\\"',
-                    '\\': '\\\\'
-                },
-                rep;
-
-
-            function quote(string) {
-
-                escapable.lastIndex = 0;
-                return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
-                    var c = meta[a];
-                    return typeof c === 'string' ? c : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-                }) + '"' : '"' + string + '"';
-            }
-
-
-            function str(key, holder) {
-
-
-
-                var i, k, v, length, mind = gap,
-                    partial, value = holder[key];
-
-
-                if (value && typeof value === 'object' && typeof value.toJSON === 'function') {
-                    value = value.toJSON(key);
-                }
-
-
-                if (typeof rep === 'function') {
-                    value = rep.call(holder, key, value);
-                }
-
-
-                switch (typeof value) {
-                case 'string':
-                    return quote(value);
-
-                case 'number':
-
-
-                    return isFinite(value) ? String(value) : 'null';
-
-                case 'boolean':
-                case 'null':
-
-
-                    return String(value);
-
-
-
-                case 'object':
-
-
-                    if (!value) {
-                        return 'null';
-                    }
-
-
-                    gap += indent;
-                    partial = [];
-
-
-                    if (Object.prototype.toString.apply(value) === '[object Array]') {
-
-
-                        length = value.length;
-                        for (i = 0; i < length; i += 1) {
-                            partial[i] = str(i, value) || 'null';
-                        }
-
-
-                        v = partial.length === 0 ? '[]' : gap ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' : '[' + partial.join(',') + ']';
-                        gap = mind;
-                        return v;
-                    }
-
-
-                    if (rep && typeof rep === 'object') {
-                        length = rep.length;
-                        for (i = 0; i < length; i += 1) {
-                            k = rep[i];
-                            if (typeof k === 'string') {
-                                v = str(k, value);
-                                if (v) {
-                                    partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                                }
-                            }
-                        }
-                    } else {
-
-
-                        for (k in value) {
-                            if (Object.hasOwnProperty.call(value, k)) {
-                                v = str(k, value);
-                                if (v) {
-                                    partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                                }
-                            }
-                        }
-                    }
-
-
-                    v = partial.length === 0 ? '{}' : gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' : '{' + partial.join(',') + '}';
-                    gap = mind;
-                    return v;
-                }
-            }
-
-
-            if (typeof JSON.stringify !== 'function') {
-                JSON.stringify = function (value, replacer, space) {
-
-
-
-                    var i;
-                    gap = '';
-                    indent = '';
-
-
-
-                    if (typeof space === 'number') {
-                        for (i = 0; i < space; i += 1) {
-                            indent += ' ';
-                        }
-
-
-
-                    } else if (typeof space === 'string') {
-                        indent = space;
-                    }
-
-
-                    rep = replacer;
-                    if (replacer && typeof replacer !== 'function' && (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
-                        throw new Error('JSON.stringify');
-                    }
-
-
-
-                    return str('', {
-                        '': value
-                    });
-                };
-            }
-
-
-            if (typeof JSON.parse !== 'function') {
-                JSON.parse = function (text, reviver) {
-
-
-                    var j;
-
-                    function walk(holder, key) {
-
-
-                        var k, v, value = holder[key];
-                        if (value && typeof value === 'object') {
-                            for (k in value) {
-                                if (Object.hasOwnProperty.call(value, k)) {
-                                    v = walk(value, k);
-                                    if (v !== undefined) {
-                                        value[k] = v;
-                                    } else {
-                                        delete value[k];
-                                    }
-                                }
-                            }
-                        }
-                        return reviver.call(holder, key, value);
-                    }
-
-
-                    text = String(text);
-                    cx.lastIndex = 0;
-                    if (cx.test(text)) {
-                        text = text.replace(cx, function (a) {
-                            return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-                        });
-                    }
-
-
-                    if (/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-
-
-                        j = eval('(' + text + ')');
-
-
-                        return typeof reviver === 'function' ? walk({
-                            '': j
-                        }, '') : j;
-                    }
-
-                    throw new SyntaxError('JSON.parse');
-                };
-            }
-        }());
-
-
-
-        // ****************************************
-        // *
-        // * End JSON Code Object Handler
-        // *
-        // ****************************************       
+exports.taffyDb = TAFFY;

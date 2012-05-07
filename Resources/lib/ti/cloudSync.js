@@ -8,6 +8,8 @@ exports.insertSnap = function(args, self, taffyID, tableRow) {
 	{
 		Ti.API.info("-----------------------------------------------------starting insert or update");
 		
+		Ti.API.info('ceheck these values'+JSON.stringify(args));
+		
 		var post = {}
 		var x = {};
 		//if update these might be passed
@@ -20,10 +22,10 @@ exports.insertSnap = function(args, self, taffyID, tableRow) {
 		if (args.status) x['status'] = args.status;
 		if (args.coordinates) x['coordinates'] = args.coordinates;
 		
-		x['dateUpdated'] = new Date(args.dateUpdated);
+		x['dateUpdated'] = new Date(args.dateUpdated); //do we need this?? maybe for date synced??
 	
 		//if has post_id use update;
-		if( args.post_id !== 'undefined' || args.post_id === false || args.post_id =='' )
+		if( args.post_id === 'undefined' || args.post_id === false || args.post_id === '' )
 		{
 			Ti.API.info('------------------starting insert (has an post_id of undefined or false ) '+args.post_id);
 	
@@ -31,18 +33,17 @@ exports.insertSnap = function(args, self, taffyID, tableRow) {
 	
 			post['custom_fields'] = x;
 			
-			Ti.API.info('------------whats TaffyID cs '+ taffyID);
-			Ti.API.info('------------whats Table Row cs '+ tableRow);
+			Ti.API.info('------------whats TaffyID cs insert '+ taffyID);
+			Ti.API.info('------------whats Table Row cs insert '+ tableRow);
 
 			Cloud.Posts.create(post, function (e) {
 					if (e.success) {
-						alert('Created!');
-						Ti.API.info(JSON.stringify(e));
+						Ti.API.info('---cloud insert success----'+JSON.stringify(e));
 						args.post_id = e.posts[0].id;
 						args.lastSynced = x['dateCreated'];
 						args.isSynced = true;
 						args.keys = {'taffyID':taffyID,'tableRow':tableRow};
-						self.fireEvent('saveSnapAndRefresh_step5',args);
+						self.fireEvent('saveSnap_taffyUpdate_step6',args);
 						return false;
 					}
 					else {
@@ -57,16 +58,22 @@ exports.insertSnap = function(args, self, taffyID, tableRow) {
 			Ti.API.info('------------------starting update (has an post_id)'+args.post_id+' '+JSON.stringify(args));
 			
 			post['custom_fields'] = x;
+			post['post_id'] = args.post_id;
+			
+			Ti.API.info('------------whats TaffyID cs update '+ taffyID);
+			Ti.API.info('------------whats Table Row cs update '+ tableRow);
 			
 			Cloud.Posts.update(post, function (e) {
 				if (e.success) {
-					alert('Updated!');
+					//alert('Updated!');
 					Ti.API.info(JSON.stringify(e));
 					args.lastSynced = x['dateCreated'];
 					args.isSynced = true;
-					self.fireEvent('saveSnapAndRefresh_step5',args, taffyID, tableRow);
+					args.keys = {'taffyID':taffyID,'tableRow':tableRow};
+					self.fireEvent('saveSnap_taffyUpdate_step6',args); 
 				}
 				else {
+					Ti.API.info(JSON.stringify(post));
 					Ti.API.info(JSON.stringify(e));
 					Ti.API.info("Problem. ErrorCode: " + e.code + " Error: " + e.message);
 				}

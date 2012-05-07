@@ -29,83 +29,10 @@ function MasterDetailView(self)
 {
 	var ActionBarView = require('/ui/common/shared/ActionBarView');
 		
-	//declare module dependencies
-	var MasterView = require('/ui/common/MasterView'),
-		DetailView = require('/ui/common/DetailView');
+	var MasterView = require('/ui/common/MasterView');
 		
 	//construct UI
-	var masterView = new MasterView(),
-		detailView = new DetailView();
-	
-	//create detail view container
-	var detailContainerWindow = Ti.UI.createWindow({
-		modal:true,
-		navBarHidden:true,
-		backgroundColor:'#ffffff'
-	});
-	detailContainerWindow.add(detailView);
-	
-	var topBar = new ActionBarView({
-		type:'View Snap',
-		pos: 'top'
-	});
-	
-	topBar.addEventListener('close', function() {
-		detailContainerWindow.close();
-	});
-	
-	detailContainerWindow.add(topBar.viewProxy);
-	
-	
-	var bottomBar = new ActionBarView({
-		pos: 'bottom',
-		buttons: {
-			btnEdit: {
-				icon:'edit',
-				width:80
-			},
-			btnTag: {
-				icon:'tag',
-				width:80
-			},
-			btnArchive: {
-				icon:'archive',
-				width:80
-			},
-			btnDelete: {
-				icon:'delete',
-				width:80
-			}
-		}
-	});
-
-	detailContainerWindow.add(bottomBar.viewProxy);
-	
-	Ti.include('/ui/common/snapCrud/selectorActions.js');
-	
-	bottomBar.addEventListener('buttonPress', function(e) {
-		//e.id Tells us what button was pressed.
-		//alert('a'+JSON.stringify(detailView.data['snap']['___id']));
-		//alert('b'+JSON.stringify(detailView.data.snap));
-		Ti.API.info('----------want to modify stuff from data---------'+JSON.stringify(detailView.data['snap']));
-		doAction('ModifySnap', e.id, detailView, detailView.data['snap']);
-	});
-	
-    //Modify Snap and Close relevant windows and refresh table
-	detailView.addEventListener('modifySnapAndRefresh_step1', function(e) {
-		masterView.SnapView.fireEvent('modifySnapAndRefresh_step2',e);
-		detailContainerWindow.close();
-	});
-	
-	//add behavior for master view
-	masterView.SnapView.addEventListener('itemSelected', function(e) {
-		detailView.data = e;
-		Ti.API.info('looking for post_id '+JSON.stringify(e));
-		detailContainerWindow.close();
-		detailContainerWindow.open();
-		detailView.fireEvent('prepareView',e);
-		return false;
-	});
+	var masterView = new MasterView();
 	
 	masterView.addEventListener('unauthenticated', function(user) {
 		self.remove(masterView);

@@ -62,11 +62,11 @@ function btnAddWindow() {
 		doAction('Snap',e.id, self, e);
 	});
 	
-	self.addEventListener('saveSnapAndRefresh_step2', function(newSnap) {
+	self.addEventListener('saveSnap_passBack_step2', function(newSnap) {
 		Ti.API.info('------------off to save new snap stage 3---------------');
-		self.fireEvent('saveSnapAndRefresh_step3',newSnap); //MasterView.js  just passing newsnap
-		//return false;
+		self.fireEvent('saveSnap_passBack_step3',newSnap); //MasterView.js (just passes it back SnapsScrollableTableView.js) 
 	});
+	
 
 	return self;
 }

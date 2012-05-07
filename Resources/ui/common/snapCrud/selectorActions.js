@@ -35,9 +35,15 @@ function openSnapWindow(btnAction, self, data)
 	var masterModal = require('/ui/common/snapCrud/snapForm');
 	var w = new masterModal(btnAction, data);
 		
-	w.addEventListener('saveSnapAndRefresh_step1', function(newSnap) {
+	w.addEventListener('saveSnap_passBack_step1', function(newSnap) {
 		Ti.API.info('------------off to save new snap stage 2---------------');
-		self.fireEvent('saveSnapAndRefresh_step2',newSnap); // btnAddWindow.js passes it back to 
+		self.fireEvent('saveSnap_passBack_step2',newSnap); // btnAddWindow.js (just passes it back MasterView.js) 
+		self.close();
+	});
+	
+	w.addEventListener('updateSnap_passBack_step1', function(updatedSnap) {
+		Ti.API.info('------------off to update snap stage 2---------------');
+		self.fireEvent('updateSnap_passBack_step2',updatedSnap); // detailWindow.js (just passes it back SnapsScrollableTableView.js) 
 		self.close();
 	});
 	
@@ -50,7 +56,7 @@ function ModifySnap(btnAction, self, data)
 	switch(btnAction)
 	{
 		case'btnEdit':
-			alert('send to correct form with data');
+			openSnapWindow(btnAction, self, data); //Make sure uid and whole row is in data
 		break;
 		case'btnArchive':
 			modifyRecord('Archive', self, data);
@@ -68,7 +74,7 @@ function ModifySnap(btnAction, self, data)
 
 function modifyRecord(which, self, data)
 {
-	Ti.include('/lib/thirdParty/taffy.js');	
+	//Ti.include('/lib/thirdParty/taffy.js');	
 	var t = which + " Snap";
 	var w = which.toLowerCase();
 	var m = "Are you sure you want to " + w + " this snap?";
@@ -82,21 +88,16 @@ function modifyRecord(which, self, data)
 	   }
 	   //now you can use parameter e to switch/case   //cancel is 1 so must be 0
 	   if(e.index==0) {
-		  Titanium.API.info('Clicked button 0 (YES)');
-		  Ti.API.info('data at this point--- '+JSON.stringify(data));
-		  //return false;
-		  //hand this back using to trigger to close window and refresh table
-		  //alert("do taffy update");
-		  //if edit then go through the fields getting values.
-		  // TAFFY(db(id).update({status:w}));
-		  //var data = {};
-		  var ndata = {};
-		  ndata['id'] = data['___id'];
-		  ndata['updatedSnap'] = {status:w,post_id:data['post_id']};
-		  ndata['row'] = data['tableRow'];
-		 // ndata['updateSnapType'] = 'status';
-		 Ti.API.info(JSON.stringify(ndata));
-		  self.fireEvent('modifySnapAndRefresh_step1',ndata);
+			Titanium.API.info('Clicked button 0 (YES)');
+			Ti.API.info('data at this point--- '+JSON.stringify(data));
+  
+			var myJsonData = {};
+			var post_id = data['post_id'];
+			var uid = data['uid'];
+			myJsonData['updatedSnap'] = {status:w,post_id:post_id,uid:uid};
+			myJsonData['tableRow'] = data['tableRow'];
+			Ti.API.info(JSON.stringify(myJsonData));
+			self.fireEvent('updateSnap_passBack_step2',myJsonData); /*detailWindow.js, passes it back to SnapsScrollableTableView.js*/
 	   }
 	});
 	confirmAlert.show();
