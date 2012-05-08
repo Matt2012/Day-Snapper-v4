@@ -1,0 +1,11 @@
+tmp
+bin
+build
+*.zip
+.apt_generated
+.settings
+/libs
+libs
+/.settings
+.classpath
+.project

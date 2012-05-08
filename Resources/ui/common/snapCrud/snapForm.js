@@ -15,7 +15,8 @@ function snapForm(btnAction, data) {
 	{
 		//new snap
 		var category = btnAction.substring(3).toLowerCase(); 
-		var d1 = false;
+		//var da = moment("YYYY,MM,DD");
+		var d1 = new Date();
 		var d2 = new Date().toISOString();
 	}
 	else
@@ -183,11 +184,11 @@ function snapForm(btnAction, data) {
 			
 			f.coordinatesval.height = '40dp';
 			l.label_coordinatesval.height = '40dp';
-			f.id.height = '40dp';
-			l.label_id.height = '40dp';
+			//f.id.height = '40dp';
+			//l.label_id.height = '40dp';
 			//l.label_geoLocation.height = '40dp';
 			//bottomBar.viewProxy.buttonRefs.btnViewShow
-			form.contentHeight = '1000dp';
+			form.contentHeight = '900dp';
 			form.backgroundColor = '#95CAFF';
 			
 			bottomBar.buttonRefs.btnViewShow.width = '0';
@@ -210,8 +211,8 @@ function snapForm(btnAction, data) {
 			
 			f.coordinatesval.height = '0dp';
 			l.label_coordinatesval.height = '0dp';
-			f.id.height = '0dp';
-			l.label_id.height = '0dp';
+			//f.id.height = '0dp';
+			//l.label_id.height = '0dp';
 			
 			bottomBar.buttonRefs.btnViewShow.width = '140dp';
 			
@@ -314,53 +315,52 @@ module.exports = snapForm;
 
 function insertLocationValues()
 {
-	
-			//add location this should happen on form on open so it can gecode
-			var atlas = require('lib/ti/atlas/atlas');
+	  //add location this should happen on form on open so it can gecode
+	  var atlas = require('lib/ti/atlas/atlas');
 
-			if(atlas.Geo.enabled())
-			{
-				var coordinates = atlas.Geo.getCurrentCoordinates(function (e) {
-					if (e.success) {
-						Ti.API.info(JSON.stringify(e));
-						Ti.API.info("Success: " + e.latitude);
-						
-						var old = {};
-						old.latitude = '';
-						old.longitude = '';
-						if(old.latitude!='')
-						{
-							var m = "Do you want to overwrite your saved location with your current one ?";
-							var confirmAlert = Titanium.UI.createAlertDialog({ title: t, message: m, buttonNames: ['Yes', 'No'], cancel: 1 });
-							
-								confirmAlert.addEventListener('click', function(e) { 
-							   Titanium.API.info('e = ' + JSON.stringify(e));
-							   //Clicked cancel, first check is for iphone, second for android
-							   if (e.cancel === e.index || e.cancel === true) {
-								  return;
-							   }
-							   if(e.index==0) {
-									Titanium.API.info('Clicked button 0 (YES)');
-									return '['+old.latitude+','+old.longitude+']';
-							   }
-							});
-							confirmAlert.show();
-						}
-						else
-						{
-							return '['+e.latitude+','+e.longitude+']';
-						}
-					}
-					else {
-						Ti.API.info(JSON.stringify(e));
-						Ti.API.info("Problem: " + e.message);
-						return '[]';
-					}
-				});
-			}
-			else
-			{
-				return '[]';
-			}
+	  if(atlas.Geo.enabled())
+	  {
+		  var coordinates = atlas.Geo.getCurrentCoordinates(function (e) {
+			  if (e.success) {
+				  Ti.API.info(JSON.stringify(e));
+				  Ti.API.info("Success: " + e.latitude);
+				  
+				  var old = {};
+				  old.latitude = '';
+				  old.longitude = '';
+				  if(old.latitude!='')
+				  {
+					  var m = "Do you want to overwrite your saved location with your current one ?";
+					  var confirmAlert = Titanium.UI.createAlertDialog({ title: t, message: m, buttonNames: ['Yes', 'No'], cancel: 1 });
+					  
+						  confirmAlert.addEventListener('click', function(e) { 
+						 Titanium.API.info('e = ' + JSON.stringify(e));
+						 //Clicked cancel, first check is for iphone, second for android
+						 if (e.cancel === e.index || e.cancel === true) {
+							return;
+						 }
+						 if(e.index==0) {
+							  Titanium.API.info('Clicked button 0 (YES)');
+							  return '['+old.latitude+','+old.longitude+']';
+						 }
+					  });
+					  confirmAlert.show();
+				  }
+				  else
+				  {
+					  return '['+e.latitude+','+e.longitude+']';
+				  }
+			  }
+			  else {
+				  Ti.API.info(JSON.stringify(e));
+				  Ti.API.info("Problem: " + e.message);
+				  return '';
+			  }
+		  });
+	  }
+	  else
+	  {
+		  return '';
+	  }
 	
 }

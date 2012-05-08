@@ -23,20 +23,6 @@
 		//Ti.API.info(user);
 	}
 	
-	//get TaffyDB based on logged in user
-//		if(typeof myTaffyDB=='undefined')
-//		{
-//			Ti.API.info('------------defining taffydb');
-//			var myTaffyDB = Ti.taffy([]);
-//			myTaffyDB.open('latest'); //based on user also change this to user preference
-//		}
-//		else
-//		{
-//			Ti.API.info('-------taffy defined-----reached here');
-//			var z = myTaffyDB().get();
-//			Ti.API.info(JSON.stringify(z));
-//		}
-		
 		
 	var osname = Ti.Platform.osname,
 	version = Ti.Platform.version,
@@ -53,16 +39,14 @@
 		var temp = (value * 100) / 320;
 		return parseInt((screenWidth * temp) / 100);
 	}
-	
-	
-	
+
 	
 	
 	if(osname === 'android')
 	{
-		//var bugsense = require("com.droisys.bugsense");
-		//bugsense.setup(apiKeys.bugsense);
-		//Ti.API.info("module is => " + bugsense);
+		var bugsense = require("com.droisys.bugsense");
+		bugsense.setup(apiKeys.bugsense);
+		Ti.API.info("module is => " + bugsense);
 		//broken
 	}
 	else

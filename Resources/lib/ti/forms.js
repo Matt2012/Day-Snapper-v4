@@ -188,6 +188,7 @@ var addField = function(field, fieldRefs, labelRefs) {
 			setupPickerTextField(fieldObject, Ti.UI.PICKER_TYPE_DATE);
 		}
 		
+		
 		fieldObject.setLocale(Titanium.Platform.locale); 
         fieldObject.selectionIndicator = true;
 		fieldObject.addEventListener("change", function(e){

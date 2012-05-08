@@ -26,4 +26,4 @@ name: bugsense
 moduleid: com.droisys.bugsense
 guid: dba4dd7b-b376-491c-96d9-c7800ef00f49
 platform: android
-minsdk: 2.1.0.v20120419171835
+minsdk: 2.0
