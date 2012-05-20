@@ -768,6 +768,46 @@ var TAFFY;
             run.call(this);
             return this.context().results.length;
         });
+		
+/*		 API.extend("upsert", function (primarykeys,records) {
+            // ****************************************
+            // *
+            // * Returns: 
+            // **************************************** 
+			// get context
+			var that = this;
+			// run query as needed
+			that.context({
+			results: that.getDBI().query(that.context())
+			});
+			var foundRecords = {};
+			TAFFY.each(this.context().results,function (r) {
+			var k = "";
+			TAFFY.each(primarykeys,function (key) {
+			k = k +"_" + r[key];
+			})
+			foundRecords[k] = r.___id;
+			});
+			
+			TAFFY.each(records,function (r) {
+			var k = "";
+			TAFFY.each(primarykeys,function (key) {
+			k = k +"_" + r[key];
+			})
+			if (foundRecords[k]) {
+			that.getDBI().update(foundRecords[k], r);
+			} else {
+			that.getDBI().insert(r);
+			}
+			});
+			// since data may have changed, clear chache
+			if (this.context().results.length) {
+			this.context({
+			run: null
+			});
+			}
+			return this;
+        });*/
 
         API.extend("callback", function (f,delay) {
             // ****************************************
@@ -965,8 +1005,6 @@ var TAFFY;
             });
             return (!returnarray) ? ra.join("") : ra;
         });
-
-
        
         API.extend("each", function (m) {
             // ****************************************
@@ -991,6 +1029,8 @@ var TAFFY;
             	});
             return ra;
         });
+		
+
 
 
         var runFilters = function (r, filter) {
@@ -1234,7 +1274,9 @@ var TAFFY;
                         var tc = {};
                         var hasChange = false;
                         eachin(nr,function (v,i) {
-                        	if (TAFFY.isUndefined(or[i]) || or[i] != v) {
+							Ti.API.info('uniqueID (post_id)-----'+JSON.stringify(v));
+							Ti.API.info('not sure-----'+JSON.stringify(or));
+                        	if (TAFFY.isUndefined(or[i]) || or[i] !== v) {
                         		tc[i] = v;
                         		hasChange = true;
                         	}
@@ -1759,6 +1801,8 @@ var TAFFY;
             }
             return false;
         };
+
+
 
         // ****************************************
         // *

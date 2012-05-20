@@ -8,7 +8,8 @@
 	
 	Ti.include('/lib/ti/config.js');
 	
-
+	var deviceID = Titanium.Platform.id;
+	
 	var Cloud = require('ti.cloud');
 	Cloud.debug = true;  // optional; if you add this line, set it to false for production
 
@@ -22,8 +23,10 @@
 		//Ti.API.info(JSON.stringify(user));
 		//Ti.API.info(user);
 	}
+
 	
-		
+	//check gps location and store in variable for adding last location ??
+	
 	var osname = Ti.Platform.osname,
 	version = Ti.Platform.version,
 	screenHeight = Ti.Platform.displayCaps.platformHeight,
@@ -52,7 +55,7 @@
 	else
 	{
 		var testflight = require("com.0x82.testflight");
-		testflight.takeOff(testflight.takeOff(teamToken))
+		testflight.takeOff(testflight.takeOff(apiKeys.teamToken))
 	}
 	
 	
@@ -62,5 +65,7 @@
 	{
 		var tabletExt = (isTablet) ? '@2x' : ''; 
 		//var colour = (pos=='top') ? 'white' : 'grey' ;
-		return '/images/glyph/grey/'+icon+tabletExt+'.png';
+		var retVal = '/images/glyph/grey/'+icon+tabletExt+'.png';
+		Ti.API.info('------------icon url is '+retVal);
+		return retVal;
 	}

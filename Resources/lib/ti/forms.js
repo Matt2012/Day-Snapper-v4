@@ -28,7 +28,7 @@ exports.TYPE_VIEW = 'view';
 
 var isAndroid = Ti.Platform.osname === 'android';
 var textFieldDefaults = {
-	height: '40dp',
+	height: '40',
 	width: '300dp',
 	top: '10dp',
 	color: '#222',
@@ -136,28 +136,8 @@ var addField = function(field, fieldRefs, labelRefs) {
 				  returnKeyType : Ti.UI.RETURNKEY_EMERGENCY_CALL*/
 			};
 		} else {
-			var send = Ti.UI.createButton({
-				title : 'Send',
-				style : Ti.UI.iPhone.SystemButtonStyle.DONE,
-			});
 			
-			var camera = Ti.UI.createButton({
-				systemButton : Ti.UI.iPhone.SystemButton.CAMERA,
-			});
-			
-			var cancel = Ti.UI.createButton({
-				systemButton : Ti.UI.iPhone.SystemButton.CANCEL
-			});
-			
-			var flexSpace = Ti.UI.createButton({
-				systemButton : Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-			});
-			
-			var textAreaOpts = {
-				keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
-				keyboardToolbarColor : '#999',
-				keyboardToolbarHeight : 40
-			};
+			var textAreaOpts = {backgroundColor:'#FFCCCC'};
 			
 		}
 		
@@ -248,6 +228,9 @@ var addField = function(field, fieldRefs, labelRefs) {
 
 var addFields = function(fields, fieldRefs, labelRefs) {
 	for (var i in fields) {
+		Ti.API.info(JSON.stringify(fieldRefs));
+		Ti.API.info(JSON.stringify(labelRefs));
+		Ti.API.info(JSON.stringify(fields[i]));
 		this.addField(fields[i], fieldRefs, labelRefs);
 	}
 };

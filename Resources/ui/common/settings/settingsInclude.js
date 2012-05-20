@@ -1,6 +1,5 @@
 // JavaScript Document
-
-function textSettingWindow(opts, self)
+exports.textSetting = function(opts, self)
 {
 	var ActionBarView = require('/ui/common/shared/ActionBarView');
 	
@@ -24,11 +23,16 @@ function textSettingWindow(opts, self)
 	});
 	textWin.add(label);
 
-	var tf1 = Ti.UI.createTextField({
-		value: Titanium.App.Properties.getString(opts.tfValue, ''),
-		keyboardType:Ti.UI.KEYBOARD_NUMBER_PAD,
-		top: 100, left: 10, right: 10, height:40
-	});
+	var tf1Opts = {value: Titanium.App.Properties.getString(opts.tfValue, ''),
+		top: 100, left: 10, right: 10, height:40};
+	
+	if(opts.tfValue=='pinCode')
+	{
+		tf1Opts.keyboardType = Ti.UI.KEYBOARD_NUMBER_PAD;
+	}
+	
+	var tf1 = Ti.UI.createTextField(tf1Opts);
+
 	textWin.add(tf1);
 
 	var btn = Ti.UI.createButton({

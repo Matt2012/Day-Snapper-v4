@@ -12,7 +12,7 @@ copyright: Copyright (c) 2012 by benCoding.Com
 
 # these should not be edited
 name: basicgeo
-moduleid: com.bencoding.basicgeo
+moduleid: bencoding.basicgeo
 guid: 8b4dc1c4-37e0-44f6-9868-0f669b838a8b
 platform: android
 minsdk: 1.8.2

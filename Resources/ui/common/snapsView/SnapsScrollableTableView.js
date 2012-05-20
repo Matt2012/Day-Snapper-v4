@@ -17,14 +17,30 @@ function SnapView() {
 		height:375,
 		color:'#999'
 	});
+	
 	self.add(snapTable);
 	
-	
 	//taffySync.cleanTaffy();
+	//Titanium.App.Properties.setString('lastTextSyncDate',"false");
+	
+	var autoSync = Titanium.App.Properties.getString('autoSync', "false");
+	if(autoSync)
+	{
+		var autoSync = require('/lib/ti/autoSync').autoSync();
+	}
+	else
+	{
+		Ti.App.fireEvent('loadTable');
+	}
 	
 	
-	taffySync.loadTable(self);
 	
+	Ti.App.addEventListener('taffySync.updateTaffy', function(jsonData, callback) {
+
+		taffySync.updateTaffyV2(jsonData.uid, jsonData, callback);
+	});
+	
+
 	//sets table data on app open
 	self.addEventListener('setTableData', function(myArrayData) {
 
@@ -32,6 +48,10 @@ function SnapView() {
 		snapTable.data = myArrayData;	
 	});
 
+	Ti.App.addEventListener('loadTable', function() {
+
+		taffySync.loadTable(self);
+	});
 
 	//sends all table row data (should be whole taffy row record) to new detail window
 	snapTable.addEventListener('click', function(e) {
@@ -124,21 +144,19 @@ function SnapView() {
 	});
 	
 	
-	self.addEventListener('doSync', function() {
-		var refreshTable = cloudSync.doSync();	
-		if(refreshTable)
-		{
-			//var mySnapsDB = TAFFY( TAFFY.loadFlatFile('snapsLatest.json') );
-			//var y = mySnapsDB({status:"live"}).order("dateFor desc").get();
-			var y = taffySync.getTaffy('all_live');
-			snapTable.data = y;
-		}
+	self.addEventListener('setTableData2', function() {
+		var y = taffySync.getTaffy('all_live');
+		snapTable.data = y;
 	});
 	
 	
 	self.addEventListener('doSearch', function() {
 			alert('search coming soon..');
 	});
+	
+
+
+
 	
 	return self;
 };

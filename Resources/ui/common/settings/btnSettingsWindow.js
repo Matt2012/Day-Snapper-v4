@@ -1,6 +1,7 @@
 // all the magic happens here
 Ti.include('/lib/ti/global.js');
-Ti.include('/ui/common/settings/settingsInclude.js');
+var textSettingWindow = require('/ui/common/settings/settingsInclude');
+
 
 function addPreference(options) {
 	var self = options.self;
@@ -202,7 +203,7 @@ function settingsWindow() {
 	onclick: function() {
 			var opts = {'tfLabel':'Change your Name here.','tfValue':'Name','updateID':'a2','winTitle':'Update Name'};
 			//TODO update name in cloud //only do below if network
-			textSettingWindow(opts, self);
+			textSettingWindow.textSetting(opts, self);
 		}
 	});
 	
@@ -219,7 +220,7 @@ function settingsWindow() {
 			if(newValue==true)
 			{
 				var opts = {'tfLabel':'Choose your Pin Code.','tfValue':'pinCode','updateID':false,'winTitle':'Pin Code'};
-				textSettingWindow(opts, self);
+				textSettingWindow.textSetting(opts, self);
 			}
 			Titanium.App.Properties.setString("usePinCode",newValue);
 		}
@@ -230,8 +231,8 @@ function settingsWindow() {
 		id:'p1',
 		header:'Demonstration only',
 		table: tableView,
-		title:'Select Something',
-		myitems: ['Item A', 'Item B', 'Item C'],
+		title:'Select Theme - Soon',
+		myitems: ['Wooden Planks', 'Concrete Walls', 'Graph Paper'],
      	prefix:' ',
 		selectedItem: testPref,
 		onselect: function(newValue) {

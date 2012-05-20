@@ -4,8 +4,8 @@ function SnapSelectorScrollableTableView() {
 	
 	var self = Ti.UI.createView({
 		backgroundColor:'#FFFFFF',
-		top:44,
-		bottom:44,
+		top:GetHeight(44),
+		bottom:GetHeight(44),
 	});
 
 	//save this to Taffy on first run // check for updates from server

@@ -3,9 +3,11 @@ function snapForm(btnAction, data) {
 	Ti.include('/lib/ti/global.js');
 	var ActionBarView = require('/ui/common/shared/ActionBarView');
 	
+	var isModal = (Ti.Platform.osname === 'android') ? true : false;
+	
 	var win = new ui.Window({
 		backgroundColor:'white',
-		modal:true,
+		modal:isModal,
 		navBarHidden:true
 	});
 
@@ -67,7 +69,7 @@ function snapForm(btnAction, data) {
 		{ title:'Date For', type:'date', id:'dateFor', isHidden:true, value:d1  },
 		{ title:'Location (click to change)', type:'text', id:'geoLocation', isHidden:true},
 		{ title:'Tags (separate with a comma)', type:'text', id:'tags', isHidden:true  },
-		{ title:'Snap (save!)', type:'submit', id:'submitForm'},
+	/*	{ title:'Snap (save!)', type:'submit', id:'submitForm'},*/
 		{ title:'system:datefor', type:'text', id:'dateforval', value:d2, isHidden:true },
 		{ title:'system:coordinates', type:'text', id:'coordinatesval', isHidden:true},
 		{ title:'system:id', type:'text', id:'id', isHidden:true },
@@ -119,6 +121,14 @@ function snapForm(btnAction, data) {
 	var bottomBar = new ActionBarView({
 		pos: 'bottom',
 		buttons: {
+			btnSave: {
+				title:'Save Snap',
+				width:120
+			},
+			btnSpacer: {
+				title:'',
+				width:100
+			},
 			btnViewShow: {
 				title:'Advanced View',
 				width:140
@@ -126,7 +136,8 @@ function snapForm(btnAction, data) {
 			btnViewHide: {
 				title:'Simple View',
 				width:0
-			}
+			},
+			
 		}
 	});
 
@@ -135,11 +146,21 @@ function snapForm(btnAction, data) {
 	var f=form.fieldRefs;
 	var l=form.labelRefs;
 	
-	var coordinates = insertLocationValues();
-	Ti.API.info(JSON.stringify(coordinates));
-	f.coordinatesval.value = coordinates;
+	//var coordinates = insertLocationValues();
+	//Ti.API.info(JSON.stringify(coordinates));
+	//f.coordinatesval.value = coordinates;
+	Ti.include('/lib/ti/geoSync.js');
+
+	var location = getLocation();
+	
+	Ti.API.info(JSON.stringify(location));
+	if(typeof location != "undefined")
+	{
+		f.coordinatesval.value = [location.latitude,location.longitude];
+	}
 	
 	Ti.API.info(JSON.stringify(f));
+	
 	
 	if(typeof data.title != "undefined")
 	{
@@ -153,7 +174,7 @@ function snapForm(btnAction, data) {
 		f.id.value = data.uid+''; //makes sures its a string so no formatting // may not be needed
 		
 		l.label_postText.text = 'Edit ' + l.label_postText.text;
-		f.submitForm.title = 'Edit Snap';
+	/*	f.submitForm.title = 'Edit Snap';*/
 
 		var topIcon = data.category;
 	}
@@ -171,8 +192,11 @@ function snapForm(btnAction, data) {
 		
 		Ti.API.info(JSON.stringify(bottomBar));
 		
-		
-		if(e.id=='btnViewShow')
+		if(e.id=='btnSave')
+		{
+			form.fireEvent('submitForm');	
+		}
+		else if(e.id=='btnViewShow')
 		{
 			f.postTitle.height = '40dp';
 			f.tags.height = '40dp';
@@ -266,7 +290,7 @@ function snapForm(btnAction, data) {
 				//Ti.API.info(JSON.stringify(lines));
 				var textSnapA = lines[0].split('.'); //get first sentence
 				//Ti.API.info('------------reached here 3 '+textSnapA[0]);
-				var titleSnap = textSnapA[0].substr(0,20);
+				var titleSnap = textSnapA[0].substr(0,60);
 			}
 			
 			
@@ -311,56 +335,3 @@ function snapForm(btnAction, data) {
 }
 
 module.exports = snapForm;
-
-
-function insertLocationValues()
-{
-	  //add location this should happen on form on open so it can gecode
-	  var atlas = require('lib/ti/atlas/atlas');
-
-	  if(atlas.Geo.enabled())
-	  {
-		  var coordinates = atlas.Geo.getCurrentCoordinates(function (e) {
-			  if (e.success) {
-				  Ti.API.info(JSON.stringify(e));
-				  Ti.API.info("Success: " + e.latitude);
-				  
-				  var old = {};
-				  old.latitude = '';
-				  old.longitude = '';
-				  if(old.latitude!='')
-				  {
-					  var m = "Do you want to overwrite your saved location with your current one ?";
-					  var confirmAlert = Titanium.UI.createAlertDialog({ title: t, message: m, buttonNames: ['Yes', 'No'], cancel: 1 });
-					  
-						  confirmAlert.addEventListener('click', function(e) { 
-						 Titanium.API.info('e = ' + JSON.stringify(e));
-						 //Clicked cancel, first check is for iphone, second for android
-						 if (e.cancel === e.index || e.cancel === true) {
-							return;
-						 }
-						 if(e.index==0) {
-							  Titanium.API.info('Clicked button 0 (YES)');
-							  return '['+old.latitude+','+old.longitude+']';
-						 }
-					  });
-					  confirmAlert.show();
-				  }
-				  else
-				  {
-					  return '['+e.latitude+','+e.longitude+']';
-				  }
-			  }
-			  else {
-				  Ti.API.info(JSON.stringify(e));
-				  Ti.API.info("Problem: " + e.message);
-				  return '';
-			  }
-		  });
-	  }
-	  else
-	  {
-		  return '';
-	  }
-	
-}

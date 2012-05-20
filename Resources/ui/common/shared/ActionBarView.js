@@ -12,7 +12,7 @@ function ActionBarView(args) {
 		var self = new ui.Component(new ui.View({
 			height:GetHeight(44),
 			backgroundColor:'#F1F1F1',
-			top:GetHeight(0)
+			top:0
 		}));
 		
 //		var backbutton = Titanium.UI.createButton({ backgroundImage:'images/.png', width:48, height:27 }); 
@@ -69,8 +69,8 @@ function ActionBarView(args) {
 				}
 				else
 				{
-					//Add Back Button
-					if (Ti.Platform.osname === 'android') {
+					//Add Back Button make platform specific later
+					if (Ti.Platform.osname === 'android' || 1==1) {
 						//use android 'holo' style back button					
 						 var btnBackView = new ui.View({
 							left:0,
@@ -124,7 +124,7 @@ function ActionBarView(args) {
 						});
 						
 						closeButton.addEventListener('click', function() {
-							self.close();
+							self.fireEvent('close');
 						});
 						
 						self.rightNavButton = closeButton;
@@ -134,7 +134,7 @@ function ActionBarView(args) {
 			}
 			else
 			{
-				self.add(new ui.ImageView('../../images/appc_white.png', {
+				self.add(new ui.ImageView('/images/appc_white.png', {
 					left:GetWidth(5),
 					width:GetWidth(161),
 					height:GetHeight(32)
@@ -183,6 +183,7 @@ function ActionBarView(args) {
 				var t = Ti.UI.create2DMatrix();
 	
 				btnImage.addEventListener('click', function(e) {
+					//alert(e.id);
 					for(i=0;i<1000;i++)
 					{
 						t = t.rotate(90);

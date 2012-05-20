@@ -16,6 +16,17 @@ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR P
 */
 // Setup TAFFY Function (nameSpace) to return an object with methods.
 var TAFFY; 
+
+
+
+
+
+
+
+
+
+
+
 (function () {
     "use strict";
     if (!TAFFY) {
@@ -849,6 +860,43 @@ var TAFFY;
             return ra;
         });
 		
+		API.extend("upsert",function (primarykeys,records) {
+			// get context
+			var that = this;
+			// run query as needed
+			that.context({
+					results: that.getDBI().query(that.context())
+				});
+				
+			var foundRecords = {};
+			TAFFY.each(this.context().results,function (r) {
+				var k = "";
+				TAFFY.each(primarykeys,function (key) {
+					k = k +"_" + r[key];
+				})
+				foundRecords[k] = r.___id;
+			});
+					
+			TAFFY.each(records,function (r) {
+				var k = "";
+				TAFFY.each(primarykeys,function (key) {
+					k = k +"_" + r[key];
+				})
+				if (foundRecords[k]) {
+					that.getDBI().update(foundRecords[k], r);
+				} else {
+					that.getDBI().insert(r);
+				}
+			});
+					// since data may have changed, clear chache
+			if (this.context().results.length) {
+					this.context({
+					run: null
+				});
+			}
+			return this;
+		})
+		
 		
         var runFilters = function (r, filter) {
                 // ****************************************
@@ -1374,6 +1422,46 @@ var TAFFY;
 					Ti.API.info("FlatFileDB saved");
 				}
 				
+				
+				root.upsert = function (primarykeys,records) {
+					// get context
+					var that = this;
+					// run query as needed
+					that.context({
+							results: that.getDBI().query(that.context())
+						});
+						
+					var foundRecords = {};
+					TAFFY.each(this.context().results,function (r) {
+						var k = "";
+						TAFFY.each(primarykeys,function (key) {
+							k = k +"_" + r[key];
+						})
+						foundRecords[k] = r.___id;
+					});
+							
+					TAFFY.each(records,function (r) {
+						var k = "";
+						TAFFY.each(primarykeys,function (key) {
+							k = k +"_" + r[key];
+						})
+						if (foundRecords[k]) {
+							that.getDBI().update(foundRecords[k], r);
+						} else {
+							that.getDBI().insert(r);
+						}
+					});
+							// since data may have changed, clear chache
+					if (this.context().results.length) {
+							this.context({
+							run: null
+						});
+					}
+					return this;
+				};
+				
+				
+				
 				// ****************************************
                 // *
                 // * Return root on DB creation and start having fun
@@ -1443,6 +1531,8 @@ var TAFFY;
 					return fileObjRef;
 			}
 		};
+		
+
 
         // ****************************************
         // *
