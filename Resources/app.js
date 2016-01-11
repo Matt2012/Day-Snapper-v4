@@ -39,7 +39,7 @@
 //	if(osname !== 'android')
 //	{
 //		//var testflight = require("com.0x82.testflight");
-//	}
+//	}                               
 	
 	var FirstWindow = require('ui/common/ApplicationWindow');
 		
